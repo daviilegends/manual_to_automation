@@ -119,6 +119,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .complete-btn{margin-top:16px;padding:8px 18px;background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--text-dim);font-family:var(--font-body);font-size:12px;font-weight:500;cursor:pointer;transition:all 200ms ease;display:flex;align-items:center;gap:6px;}
 .complete-btn:hover{border-color:var(--teal);color:var(--teal);background:rgba(0,196,154,.05);}
 .day-card.completed .complete-btn{border-color:var(--teal);color:var(--teal);background:rgba(0,196,154,.08);cursor:default;}
+.exercises-list{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
+.exercise-item{border:1px solid rgba(0,196,154,.18);border-radius:4px;padding:10px 13px;background:rgba(0,196,154,.03);}
+.exercise-badge{display:inline-block;font-family:var(--font-mono);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 8px;border-radius:2px;margin-bottom:6px;}
+.exercise-badge.lvl-1{background:rgba(0,196,154,.15);color:var(--teal);}
+.exercise-badge.lvl-2{background:rgba(240,165,0,.15);color:var(--gold);}
+.exercise-badge.lvl-3{background:rgba(180,100,255,.15);color:#C084FC;}
+.exercise-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px;}
+.exercise-desc{font-size:13px;color:var(--text-dim);line-height:1.65;}
+.exercise-desc code{font-family:var(--font-mono);font-size:11px;background:var(--bg3);color:var(--gold);padding:1px 5px;border-radius:3px;}
+.exercise-desc strong{color:var(--text);font-weight:600;}
+.traps-box{background:rgba(255,92,92,.04);border:1px solid rgba(255,92,92,.2);border-radius:4px;padding:10px 14px;display:flex;flex-direction:column;gap:8px;}
+.trap-item{font-size:12px;color:#FFA0A0;line-height:1.6;}
+.trap-item code{font-family:var(--font-mono);font-size:11px;background:rgba(255,92,92,.12);color:#FFA0A0;padding:1px 5px;border-radius:3px;}
 
 /* ── Sidebar derecho ── */
 .sidebar-right{position:sticky;top:var(--hdr-h, 160px);height:calc(100vh - var(--hdr-h, 160px));overflow-y:auto;border-left:1px solid var(--border);padding:16px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
@@ -291,115 +304,299 @@ const CURRICULUM = [
       {
         day:1, title:"¿Qué es una variable? const vs let",
         theory:[
-          "Una variable es como una caja con etiqueta. Dentro guardas algo —un texto, un número, lo que sea— y la etiqueta es el nombre que tú le das.",
-          "En JavaScript hay dos formas: <code>const</code> para valores que no cambian, <code>let</code> para valores que sí pueden cambiar.",
-          "Regla de oro: empieza siempre con <code>const</code>. Solo cambia a <code>let</code> si el código lo necesita."
+          "Una variable es como una caja con una etiqueta. Dentro guardas información — un texto, un número, un resultado de test. La etiqueta es el nombre que tú le das: debe ser descriptiva y en inglés (convención del sector). Sin variables, tendrías que escribir los mismos valores una y otra vez en todo el código.",
+          "<code>const</code> es para valores que no cambian. Úsala para: el nombre de la aplicación, la URL base, las credenciales de test, el nombre del tester. Si alguien intenta cambiar una <code>const</code> después de declararla, JavaScript lanza un error. Eso es bueno — el error te avisa que algo está mal.",
+          "<code>let</code> es para valores que cambian con el tiempo. Úsala para: el resultado actual del test, el número de intentos, el estado de una verificación que va evolucionando durante la ejecución.",
+          "Las reglas de nombre: usa <strong>camelCase</strong> — palabras juntas, la primera en minúscula, las siguientes con mayúscula inicial: <code>testResult</code>, <code>intentosDeLogin</code>, <code>urlBase</code>. JavaScript es <strong>case-sensitive</strong>: <code>usuario</code> y <code>Usuario</code> son dos variables totalmente distintas.",
+          "Regla práctica: empieza siempre con <code>const</code>. Solo cámbiala a <code>let</code> cuando el código te obligue — cuando necesites reasignar el valor. Esto hace el código más predecible y fácil de leer."
         ],
-        code:`const appName = "SauceDemo";
-const urlBase = "https://www.saucedemo.com";
+        code:`const appName = "SauceDemo";           // nunca cambia
+const baseUrl = "https://www.saucedemo.com";
+const tester = "David";
 
-let testResult = "pendiente"; // puede cambiar
-let intentos = 0;
+let testStatus = "pendiente";           // cambiará al ejecutar
+let attempts = 0;                       // se irá incrementando
 
-console.log(appName);    // "SauceDemo"
-testResult = "pasado";   // válido con let
-// appName = "otro";     // Error: const no se reasigna`,
-        practice:"Abre <strong>playcode.io</strong>. Crea 3 const: tu nombre, tu empresa y tu rol. Luego una let <code>diasEstudiados = 0</code>. Cámbiala a 1 y observa."
+// Modificar un let → válido
+testStatus = "pasado";
+attempts = attempts + 1;               // ahora: 1
+
+// JavaScript es case-sensitive — esto son 2 variables distintas:
+const usuario = "standard_user";
+// console.log(Usuario); // ReferenceError: Usuario is not defined
+
+// Intentar reasignar un const → TypeError (descomenta para ver):
+// appName = "OtraApp"; // TypeError: Assignment to constant variable.
+
+console.log(\`\${appName} | \${testStatus} | intentos: \${attempts}\`);`,
+        exercises:[
+          {
+            title:"Crea tu contexto de test",
+            desc:"Abre <strong>playcode.io</strong> y declara estas variables con el tipo correcto (<code>const</code> o <code>let</code>): la URL de SauceDemo, tu nombre como tester, el nombre del test a ejecutar, el resultado (empieza en <code>'pendiente'</code>) y un contador de intentos en <code>0</code>. Luego cambia el resultado a <code>'pasado'</code> y el contador a <code>1</code>. Imprime todo con <code>console.log</code>. ¿Cuáles usaste como <code>const</code> y cuáles como <code>let</code>? ¿Por qué?"
+          },
+          {
+            title:"Descubre el TypeError",
+            desc:"Declara <code>const ambiente = 'staging'</code>. En la siguiente línea, intenta reasignarla: <code>ambiente = 'produccion'</code>. Ejecuta el código y lee el error en la consola. ¿Qué dice exactamente? Ahora cambia la declaración a <code>let ambiente</code> y vuelve a ejecutar. El error desaparece. Entiende este ciclo: <em>código → error → corrección</em>. Es como trabajarás todos los días en automation."
+          },
+          {
+            title:"Test Case completo",
+            desc:"Crea un bloque de 8 variables que describan un test case real: <code>testId</code> (ej: <code>'TC-001'</code>), <code>testName</code>, <code>precondition</code> (una oración), <code>steps</code> (pasos separados por coma como un string), <code>expectedResult</code>, <code>actualResult</code> (empieza vacío: <code>''</code>), <code>passed</code> (boolean, empieza en <code>false</code>), <code>executionDate</code>. Decide cuáles son <code>const</code> y cuáles <code>let</code>. Luego simula que el test se ejecutó: actualiza <code>actualResult</code>, <code>passed</code> y <code>executionDate</code>."
+          }
+        ],
+        traps:[
+          "<code>var</code> existe en JavaScript pero <strong>nunca lo uses</strong>. Tiene reglas de scope raras que causan bugs difíciles de encontrar. En JavaScript moderno y en todo Playwright se usa solo <code>const</code> y <code>let</code>. Si ves <code>var</code> en código antiguo, es código viejo.",
+          "Olvidar las comillas en un string: <code>const app = SauceDemo</code> → JS busca una variable llamada <code>SauceDemo</code>. Error: <code>ReferenceError: SauceDemo is not defined</code>. Los textos siempre van entre comillas (<code>'...'</code>, <code>\"...\"</code> o backticks).",
+          "Case-sensitivity: declara <code>const testName = 'login'</code> y luego escribe <code>console.log(TestName)</code> → <code>ReferenceError</code>. Una mayúscula incorrecta es suficiente para romper el código. Si algo 'no existe', revisa si el nombre está exactamente igual en ambos lugares."
+        ]
       },
       {
-        day:2, title:"Tipos: string, number, boolean",
+        day:2, title:"Tipos de dato: string, number, boolean — y los que sorprenden",
         theory:[
-          "JavaScript detecta el tipo de dato automáticamente. Los tres más usados: texto (<strong>string</strong>), número (<strong>number</strong>), verdadero/falso (<strong>boolean</strong>).",
-          "Un boolean solo tiene dos valores: <code>true</code> o <code>false</code>. En QA aparecen todo el tiempo: ¿pasó el test? ¿está visible el elemento?",
-          "Usa <code>typeof</code> para ver el tipo de cualquier variable. Muy útil al debuggear."
+          "JavaScript tiene varios tipos de dato. Los tres que usarás el 90% del tiempo: <strong>string</strong> (texto entre comillas: <code>'hola'</code>, <code>\"mundo\"</code>), <strong>number</strong> (cualquier número, entero o decimal: <code>6</code>, <code>29.99</code>) y <strong>boolean</strong> (<code>true</code> o <code>false</code> — solo esos dos valores posibles).",
+          "Hay dos tipos especiales que aparecen mucho en QA: <code>null</code> es 'intencionalmente vacío' — tú decides poner null porque aún no hay valor. <code>undefined</code> es 'no asignado' — aparece cuando declaras una variable sin darle valor. Son distintos: <code>null</code> es una decisión tuya; <code>undefined</code> es JavaScript diciéndote que olvidaste algo.",
+          "<code>typeof</code> devuelve el tipo de una variable como string. Es tu herramienta de diagnóstico. Cuando no sabes qué tipo tiene algo — especialmente al recibir datos de afuera — úsalo: <code>console.log(typeof miVariable)</code>.",
+          "JavaScript convierte tipos automáticamente en ciertas operaciones — esto se llama <strong>coerción de tipos</strong>. <code>'5' + 3</code> da <code>'53'</code> porque el <code>+</code> con strings concatena. <code>'5' - 3</code> da <code>2</code> porque el <code>-</code> fuerza conversión numérica. Este comportamiento inesperado es la fuente de muchos bugs reales.",
+          "<code>NaN</code> significa 'Not a Number' — el resultado de una operación matemática inválida como <code>0/0</code> o <code>'texto' * 2</code>. Lo curioso: <code>typeof NaN</code> devuelve <code>'number'</code> (un bug histórico de JS). Y <code>NaN === NaN</code> es <code>false</code> — NaN no es igual a sí mismo. Usa <code>isNaN(valor)</code> para verificar."
         ],
-        code:`const usuario = "standard_user";  // string
-const totalProductos = 6;          // number
+        code:`// Los 3 tipos fundamentales
+const usuario = "standard_user";   // string
+const precio = 29.99;              // number
 const loginExitoso = true;         // boolean
 
-console.log(typeof usuario);        // "string"
-console.log(typeof totalProductos); // "number"
-console.log(typeof loginExitoso);   // "boolean"
+console.log(typeof usuario);       // "string"
+console.log(typeof precio);        // "number"
+console.log(typeof loginExitoso);  // "boolean"
 
-// Curiosidad: ¿qué pasa aquí?
-console.log(5 + "3"); // "53" — no 8`,
-        practice:"Crea una variable de cada tipo. Usa <code>typeof</code> en cada una. Prueba sumar un número y un string. ¿Por qué el resultado es inesperado?"
+// null vs undefined
+let resultadoTest = null;          // intencionalmente vacío
+let tokenSesion;                   // no asignado → undefined
+console.log(typeof resultadoTest); // "object" ← bug histórico de JS
+console.log(typeof tokenSesion);   // "undefined"
+
+// Coerción — resultados que sorprenden
+console.log("5" + 3);   // "53"  (+ con string = concatena)
+console.log("5" - 3);   // 2     (- fuerza número)
+console.log(true + 1);  // 2     (true vale 1 internamente)
+console.log(false + 1); // 1     (false vale 0)
+
+// NaN
+const invalid = 0 / 0;
+console.log(invalid);            // NaN
+console.log(typeof invalid);     // "number" (!)
+console.log(isNaN(invalid));     // true
+console.log(NaN === NaN);        // false (!)`,
+        exercises:[
+          {
+            title:"Identifica tipos en un test real",
+            desc:"Crea 6 variables para datos de un test de SauceDemo: la URL del sitio, el nombre de usuario, el precio del primer producto (<code>29.99</code>), el número de productos en el carrito (<code>3</code>), si el usuario está logueado (boolean), y el mensaje de error actual (<code>null</code> porque no hay error). Usa <code>typeof</code> en cada una e imprime el resultado. ¿Alguno te sorprendió?"
+          },
+          {
+            title:"Predice el resultado — coerción",
+            desc:"<strong>Antes de ejecutar</strong>, adivina qué imprimirá cada línea. Escríbelo en un comentario. Luego ejecuta y verifica:<br><code>console.log('10' + 5)</code><br><code>console.log('10' - 5)</code><br><code>console.log(true + true)</code><br><code>console.log(false + false)</code><br><code>console.log(null + 1)</code><br>¿Cuántas acertaste? Para cada error tuyo: ¿por qué JS hizo lo que hizo?"
+          },
+          {
+            title:"Conversión de tipos: el problema del CSV",
+            desc:"Cuando lees datos de un archivo CSV en automation, todo llega como string. Simula eso: crea <code>const edadStr = '25'</code>, <code>const activoStr = 'true'</code>, <code>const intentosStr = '3'</code>. Ahora conviértelos a sus tipos correctos usando <code>Number()</code> para números, <code>=== 'true'</code> para boolean, y verifica con <code>typeof</code> que la conversión fue exitosa. Luego prueba: ¿qué pasa si haces <code>Number('precio: 29.99')</code>? ¿Qué devuelve?"
+          }
+        ],
+        traps:[
+          "<code>'6' === 6</code> → <code>false</code>. El triple igual compara valor Y tipo. String <code>'6'</code> y number <code>6</code> son tipos distintos. Si recibes datos de una API o CSV, convierte primero: <code>Number('6') === 6</code> → <code>true</code>. Esto causa bugs silenciosos en tests de comparación.",
+          "<code>typeof null</code> devuelve <code>'object'</code> — esto es un bug histórico de JavaScript que nunca se pudo corregir. Para saber si algo es null, no uses typeof: usa <code>miVar === null</code> directamente.",
+          "<code>NaN === NaN</code> devuelve <code>false</code>. Es el único valor en JS que no es igual a sí mismo. Para verificar si algo es NaN, usa <code>isNaN(valor)</code> o <code>Number.isNaN(valor)</code> — nunca compares con <code>=== NaN</code>."
+        ]
       },
       {
-        day:3, title:"Template literals — texto dinámico con ${}",
+        day:3, title:"Template literals — la forma correcta de armar texto",
         theory:[
-          "Antes para combinar texto y variables había que usar + entre todo, lo cual era confuso. Los template literals lo resuelven.",
-          "Usan backticks (`) en vez de comillas. Dentro metes variables con <code>${variable}</code> y JavaScript inserta el valor.",
-          "En Playwright los verás constantemente: mensajes de error, URLs dinámicas, descripciones de tests."
+          "Cuando necesitas combinar texto y variables, la forma antigua era usar <code>+</code> entre todo: <code>'Usuario: ' + user + ', resultado: ' + result + ' en ' + tiempo + 's'</code>. Difícil de leer, fácil de olvidar un espacio, y se vuelve un caos con muchas variables.",
+          "Los template literals usan <strong>backticks</strong> (`) en vez de comillas. Dentro pones variables así: <code>${variable}</code>. JavaScript inserta el valor automáticamente. El resultado es texto limpio y legible de un solo vistazo.",
+          "Lo más poderoso: dentro de <code>${}</code> puedes poner <strong>cualquier expresión de JavaScript</strong>, no solo variables. Cálculos, comparaciones, llamadas a funciones, operadores ternarios — todo funciona dentro. <code>`Resultado: ${pct >= 70 ? 'OK' : 'REVISAR'}`</code>",
+          "Los template literals respetan los <strong>saltos de línea</strong>. Si presionas Enter dentro del backtick, el texto tendrá ese salto. Perfecto para generar reportes multilínea sin <code>\\n</code> por todos lados.",
+          "En Playwright los verás para construir URLs dinámicas (<code>`${baseUrl}/inventory`</code>), mensajes de error descriptivos y selectores con datos variables. Dominar los template literals te ahorra tiempo todos los días."
         ],
-        code:`const usuario = "standard_user";
-const resultado = "PASADO";
-const duracion = 1.3;
-
-// Antes — difícil de leer
-const viejo = "Test de " + usuario + ": " + resultado;
-
-// Ahora — limpio y legible
-const mensaje = \`Test de \${usuario}: \${resultado} en \${duracion}s\`;
-console.log(mensaje);
-// "Test de standard_user: PASADO en 1.3s"
-
-const total = 6, ok = 4;
-const rep = \`Progreso: \${ok}/\${total} (\${Math.round(ok/total*100)}%)\`;`,
-        practice:"Crea variables <code>usuario</code>, <code>nombreTest</code> y <code>resultado</code>. Arma un template literal que diga: <em>El usuario [usuario] ejecutó [nombreTest] con resultado [resultado]</em>."
-      },
-      {
-        day:4, title:"Operadores: aritméticos, comparación y lógicos",
-        theory:[
-          "<code>===</code> (triple igual) es el operador más importante para QA: verifica que dos valores sean iguales Y del mismo tipo. Nunca uses <code>==</code>.",
-          "Con <code>&&</code> (AND) ambas condiciones deben ser true. Con <code>||</code> (OR) basta que una sea true.",
-          "Piensa en un login: el usuario debe existir AND la contraseña debe ser correcta."
-        ],
-        code:`const total = 6, ok = 4;
-const pendientes = total - ok;  // 2
-const pct = (ok / total) * 100; // 66.66
-
+        code:`const baseUrl = "https://www.saucedemo.com";
 const usuario = "standard_user";
-console.log(usuario === "standard_user"); // true
-console.log(usuario === "admin");         // false
+const resultado = "PASADO";
+const duracion = 1.34;
+const ok = 7, total = 10;
 
-const loginOk = true, tokenValido = true;
-const acceso = loginOk && tokenValido;  // true
+// Viejo: confuso, propenso a errores de espacios
+const viejo = "Test de " + usuario + ": " + resultado + " (" + duracion + "s)";
 
-const esAdmin = false, esTester = true;
-const puedeCorrer = esAdmin || esTester; // true`,
-        practice:"Crea <code>usuarioIngresado</code> y <code>passwordIngresado</code>. Compáralos con los valores correctos. Combina con <code>&&</code> para saber si el login es exitoso."
+// Template literal: limpio
+const nuevo = \`Test de \${usuario}: \${resultado} (\${duracion}s)\`;
+console.log(nuevo);
+
+// Expresiones dentro de ${}
+const pct = Math.round(ok / total * 100);
+const resumen = \`Aprobación: \${pct}% — \${pct >= 70 ? '✅ OK' : '❌ REVISAR'}\`;
+console.log(resumen); // "Aprobación: 70% — ✅ OK"
+
+// URL dinámica (como en Playwright)
+const urlInventario = \`\${baseUrl}/inventory\`;
+console.log(urlInventario);
+
+// Multilínea — sin \\n, respeta los Enters
+const reporte = \`
+Test    : Login básico
+Usuario : \${usuario}
+Estado  : \${resultado}
+Tiempo  : \${duracion}s\`;
+console.log(reporte);`,
+        exercises:[
+          {
+            title:"Convierte concatenaciones a template literals",
+            desc:"Reescribe estas 3 líneas usando template literals (sin ningún <code>+</code>). Declara las variables necesarias con valores inventados:<br><code>const msg1 = 'Ambiente: ' + ambiente + ' | Browser: ' + browser;</code><br><code>const msg2 = 'Test ' + num + ' de ' + total + ': ' + estado;</code><br><code>const msg3 = 'URL: ' + baseUrl + '/login?user=' + usuario;</code><br>Compara el resultado: ¿cuál versión es más fácil de leer?"
+          },
+          {
+            title:"Expresiones dentro de ${}",
+            desc:"Sin declarar nuevas variables, crea un template literal con estas expresiones directamente adentro: el porcentaje redondeado a 1 decimal usando <code>(ok/total*100).toFixed(1)</code>, la palabra <code>'APROBADO'</code> o <code>'REPROBADO'</code> según si el porcentaje es >= 70 (usa ternario), y la fecha de hoy con <code>new Date().toLocaleDateString('es-MX')</code>. Todo en una sola línea. Necesitas <code>ok</code> y <code>total</code> como variables."
+          },
+          {
+            title:"Reporte multilínea alineado",
+            desc:"Usando solo un template literal multilínea (sin concatenación), construye un reporte que incluya: una línea de guiones arriba y abajo (usa <code>'─'.repeat(28)</code> dentro de <code>${}</code>), nombre del proyecto, tester, ambiente, browser, fecha, total de tests, cuántos pasaron/fallaron, porcentaje, y un emoji de estado: ✅ si >= 80%, ⚠️ si >= 60%, ❌ si menos. Alinea las etiquetas con espacios para que queden en columna."
+          }
+        ],
+        traps:[
+          "Usar comillas normales en vez de backticks: <code>const msg = \"Hola \\${nombre}\"</code> — las comillas dobles o simples NO interpretan <code>\\${}</code>. Imprime el texto literal <code>Hola \\${nombre}</code> sin sustituir nada. Solo los backticks (`) activan la interpolación.",
+          "Olvidar el <code>$</code>: <code>`Hola {nombre}`</code> imprime el texto literal <code>Hola {nombre}</code>. El signo <code>$</code> antes de la llave es obligatorio para que JavaScript sepa que debe evaluar lo que está adentro.",
+          "¿Dónde está el backtick en tu teclado? En teclados en español suele estar en la tecla de la tilde grave (cerca del 1 y del Esc), o como combinación de teclas. Si no lo encuentras, busca en Google tu modelo de teclado + 'backtick'. También puedes copiarlo de aquí: <strong>`</strong>"
+        ]
       },
       {
-        day:5, title:"Práctica integradora: reporte de QA con variables",
+        day:4, title:"Operadores y condicionales — la lógica de los tests",
         theory:[
-          "Llegó el momento de usar todo junto. El mejor aprendizaje en código es resolver un problema real, aunque sea pequeño.",
-          "El ciclo normal es: escribir → ver el error → entender qué falló → corregir. Eso es exactamente como se trabaja en automation.",
-          "Al terminar habrás combinado const, let, strings, numbers, booleans, template literals y operadores. Más de lo que la mayoría aprende en su primer día."
+          "Los operadores aritméticos: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code> y <code>%</code>. El módulo (<code>%</code>) devuelve el resto de una división: <code>10 % 3 = 1</code>. En QA lo usarás para saber si un número es par, para distribuir datos de test en ciclos, o para calcular porcentajes.",
+          "Los operadores de comparación devuelven un boolean. <code>===</code> (triple igual) verifica valor <strong>y tipo</strong> — es el que siempre debes usar. <code>!==</code> verifica que sean distintos. <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code> para comparar números. <strong>Nunca uses <code>==</code> de dos signos</strong> — tiene reglas raras de coerción que causan bugs.",
+          "Los operadores lógicos combinan condiciones: <code>&&</code> (AND) requiere que ambas sean <code>true</code>. <code>||</code> (OR) requiere que al menos una sea <code>true</code>. <code>!</code> niega — convierte <code>true</code> en <code>false</code> y viceversa. Piensa en un login: usuario correcto <strong>Y</strong> contraseña correcta.",
+          "El <code>if/else</code> ejecuta código diferente según una condición. Es el control de flujo más fundamental. La estructura: <code>if (condicion) { /* si true */ } else { /* si false */ }</code>. Para múltiples casos: <code>else if</code>.",
+          "El <strong>operador ternario</strong> es un if/else en una línea: <code>condicion ? valorSiTrue : valorSiFalse</code>. Úsalo para asignaciones simples. Si la lógica tiene más de una acción o es compleja, usa if/else completo — la legibilidad importa."
         ],
-        code:`const proyecto = "SauceDemo";
+        code:`// Aritméticos
+const total = 10, pasados = 7;
+const fallidos = total - pasados;            // 3
+const pct = (pasados / total) * 100;         // 70
+const esPar = total % 2 === 0;               // true (10 es par)
+
+// Comparación estricta
+const userIngresado = "standard_user";
+const passIngresado = "secret_sauce";
+const userOk = userIngresado === "standard_user"; // true
+const passOk = passIngresado === "wrong";         // false
+
+// Lógicos
+const puedeLogin = userOk && passOk;  // false (pass falló)
+const esAdmin = false;
+const puedeVerReportes = puedeLogin || esAdmin; // false
+
+// if/else
+if (puedeLogin) {
+  console.log("✅ Bienvenido a SauceDemo");
+} else {
+  console.log("❌ Credenciales incorrectas");
+}
+
+// if / else if / else — múltiples casos
+if (pct >= 90) {
+  console.log("🏆 Excelente");
+} else if (pct >= 70) {
+  console.log("✅ Aprobado");
+} else {
+  console.log("❌ Revisar");
+}
+
+// Ternario — una línea
+const estado = pct >= 70 ? "APROBADO" : "REPROBADO";
+console.log(\`Suite: \${estado} (\${pct}%)\`);`,
+        exercises:[
+          {
+            title:"Login con if/else",
+            desc:"Crea <code>userIngresado</code> y <code>passIngresado</code> con valores de tu elección. Compáralos con los correctos de SauceDemo (<code>'standard_user'</code> / <code>'secret_sauce'</code>) usando <code>===</code>. Combina con <code>&&</code>. En el bloque <code>if</code> imprime: bienvenida con el usuario. En el <code>else</code>: imprime qué campo fue incorrecto (verifica cada uno por separado con <code>if</code> anidados o condiciones distintas)."
+          },
+          {
+            title:"Condiciones complejas con && y ||",
+            desc:"Declara 3 variables: <code>estaActivo</code> (boolean), <code>tienePermiso</code> (boolean), <code>rol</code> (string: <code>'tester'</code>, <code>'admin'</code> o <code>'viewer'</code>). Escribe condicionales que determinen:<br>• ¿Puede ejecutar tests? (activo <strong>Y</strong> tiene permiso)<br>• ¿Puede ver reportes? (activo <strong>Y</strong> (es tester <strong>O</strong> es admin))<br>• ¿Está bloqueado? (usa <code>!</code>)<br>Prueba 3 combinaciones diferentes de valores. Imprime el resultado de cada condición."
+          },
+          {
+            title:"Evaluador de QA con niveles",
+            desc:"Crea una variable <code>pct</code> con un porcentaje de éxito. Usando <code>if / else if / else</code> (no ternario), imprime:<br>• >= 90% → <code>'🏆 Excelente — suite estable'</code><br>• >= 70% → <code>'✅ Aprobado — lista para release'</code><br>• >= 50% → <code>'⚠️ Revisar — hay fallas importantes'</code><br>• &lt; 50% → <code>'❌ Bloqueado — no se puede hacer deploy'</code><br>Prueba con los valores: <code>95</code>, <code>75</code>, <code>65</code>, <code>45</code>, <code>0</code>. Cada uno debe caer en el nivel correcto."
+          }
+        ],
+        traps:[
+          "<code>=</code> vs <code>===</code>: escribir <code>if (x = 5)</code> no compara — <strong>asigna</strong> el valor 5 a x y siempre evalúa como <code>true</code>. Este bug es silencioso y muy difícil de encontrar. Siempre usa <code>===</code> dentro de un <code>if</code>.",
+          "<code>==</code> sin tipo: <code>0 == false</code> → <code>true</code>. <code>'' == false</code> → <code>true</code>. <code>null == undefined</code> → <code>true</code>. El <code>==</code> de dos signos hace conversiones raras antes de comparar. <strong>Regla absoluta: siempre <code>===</code>.</strong>",
+          "Los 'falsy values': en JavaScript, <code>false</code>, <code>0</code>, <code>''</code>, <code>null</code>, <code>undefined</code> y <code>NaN</code> se comportan como <code>false</code> en un <code>if</code>. Así que <code>if (miVariable)</code> es false si la variable es cualquiera de esos valores. Útil saberlo para evitar sorpresas."
+        ]
+      },
+      {
+        day:5, title:"Práctica integradora: script de reporte QA completo",
+        theory:[
+          "Hoy juntas todo lo de la semana: variables, tipos, template literals, operadores y condicionales. Construirás un script de reporte de QA funcional — el tipo de herramienta que podrías usar de verdad en tu trabajo diario.",
+          "El flujo que implementarás es exactamente el de un test automatizado real: <strong>1) Datos de entrada</strong> (qué estás probando y con qué valores), <strong>2) Lógica de evaluación</strong> (pasó o no, qué tan bien), <strong>3) Resultado formateado</strong> (output legible). Este patrón lo repetirás en todas las semanas.",
+          "<code>console.table()</code> muestra arrays y objetos como una tabla en la consola del browser. Es más legible que <code>console.log</code> cuando tienes datos estructurados. Pruébala: <code>console.table([{test:'login', estado:'OK'}, {test:'carrito', estado:'FAIL'}])</code>.",
+          "Los comentarios en el código deben explicar el <em>por qué</em>, no el <em>qué</em>. <code>// incrementa el contador</code> no sirve — el código ya lo dice. <code>// SauceDemo devuelve precios como string, convertir a number</code> sí sirve. Comenta solo lo que no es obvio para alguien que lea el código por primera vez.",
+          "Al cerrar este día habrás completado la Semana 1. La Semana 2 empieza donde esto se queda: en vez de repetir este código para cada reporte, vas a aprender a meterlo en una <strong>función</strong> que puedas llamar cuantas veces quieras con datos diferentes."
+        ],
+        code:`// ── Datos del test ────────────────────────
+const proyecto = "SauceDemo";
 const tester = "David";
+const ambiente = "staging";
+const browser = "Chromium";
 const totalCasos = 10;
 let exitosos = 7;
-let fallidos = totalCasos - exitosos;
 
-const pct = (exitosos / totalCasos) * 100;
-const aprobado = pct >= 70;
-const estado = aprobado ? "✅ APROBADO" : "❌ FALLIDO";
+// ── Lógica de evaluación ───────────────────
+const fallidos = totalCasos - exitosos;
+const pct = Math.round((exitosos / totalCasos) * 100);
 
+let nivelConfianza;
+if (pct >= 90) {
+  nivelConfianza = "ALTO — puede ir a producción";
+} else if (pct >= 70) {
+  nivelConfianza = "MEDIO — revisar los fallidos";
+} else {
+  nivelConfianza = "BAJO — requiere correcciones";
+}
+
+const estado = pct >= 70 ? "✅ APROBADO" : "❌ REPROBADO";
+const advertencia = ambiente === "produccion"
+  ? "\\n  ⚠️  ATENCIÓN: resultados en entorno REAL"
+  : "";
+
+// ── Reporte formateado ─────────────────────
+const sep = "─".repeat(30);
 const reporte = \`
-=== REPORTE DE QA ===
-Proyecto : \${proyecto}
-Tester   : \${tester}
-Total    : \${totalCasos}
-Exitosos : \${exitosos}
-Fallidos : \${fallidos}
-Éxito    : \${pct}%
-Estado   : \${estado}
-=====================\`;
+\${sep}
+  REPORTE DE QA — \${proyecto}
+\${sep}
+  Tester    : \${tester}
+  Ambiente  : \${ambiente}\${advertencia}
+  Browser   : \${browser}
+  Fecha     : \${new Date().toLocaleDateString('es-MX')}
+\${sep}
+  Total     : \${totalCasos} casos
+  Exitosos  : \${exitosos} (\${pct}%)
+  Fallidos  : \${fallidos}
+\${sep}
+  Estado    : \${estado}
+  Confianza : \${nivelConfianza}
+\${sep}\`;
 
 console.log(reporte);`,
-        practice:"Copia el código en <strong>playcode.io</strong>. Cambia <code>exitosos</code> a 5 y observa. Agrega variable <code>ambiente = 'staging'</code> e inclúyela en el reporte."
+        exercises:[
+          {
+            title:"Explora y modifica",
+            desc:"Copia el código en <strong>playcode.io</strong> y ejecútalo. Luego cambia <code>exitosos</code> a estos valores uno por uno: <code>9</code>, <code>7</code>, <code>5</code>, <code>3</code>. Observa cómo cambia el estado y el nivel de confianza. ¿En qué valor exacto cambia de APROBADO a REPROBADO? ¿Por qué ese número? Después cambia <code>ambiente</code> a <code>'produccion'</code> y observa la advertencia."
+          },
+          {
+            title:"Agrega un segundo test case",
+            desc:"Crea variables para un segundo test case diferente — por ejemplo, el flujo del carrito de compras con 8 exitosos de 12. Copia el bloque de lógica (fallidos, pct, nivelConfianza, estado) y adáptalo para estos nuevos datos. Genera los dos reportes. ¿Notas que estás repitiendo código? Esa repetición es exactamente el problema que las funciones de la Semana 2 van a resolver."
+          },
+          {
+            title:"console.table y datos estructurados",
+            desc:"Crea un array con 3 objetos, uno por cada tipo de test que imaginaste esta semana. Cada objeto tiene: <code>nombre</code>, <code>exitosos</code>, <code>total</code>, <code>estado</code> (calculado). Pásalo a <code>console.table()</code> y observa el output. Luego filtra solo los que fallaron usando: <code>const fallidos = tests.filter(t => t.estado === '❌ REPROBADO')</code>. (Nota: <code>filter</code> es el tema del Día 12 — verás que ya lo estás usando antes de llegar ahí.)"
+          }
+        ]
       }
     ]
   }
@@ -1313,8 +1510,9 @@ function buildDayCard(day){
       <div class="theory-text">${day.theory.map(p=>`<p>${p}</p>`).join('')}</div>
       <div class="section-label">Ejemplo</div>
       <div class="code-block"><pre>${highlight(day.code)}</pre></div>
-      <div class="section-label">Práctica</div>
-      <div class="practice-box">${day.practice}</div>
+      ${day.practice?`<div class="section-label">Práctica</div><div class="practice-box">${day.practice}</div>`:''}
+      ${day.exercises?`<div class="section-label">Ejercicios</div><div class="exercises-list">${day.exercises.map((ex,i)=>`<div class="exercise-item"><span class="exercise-badge lvl-${i+1}">${i===0?'Básico':i===1?'Intermedio':'Desafío'}</span><div class="exercise-title">${ex.title}</div><div class="exercise-desc">${ex.desc}</div></div>`).join('')}</div>`:''}
+      ${day.traps?`<div class="section-label">Errores comunes</div><div class="traps-box">${day.traps.map(t=>`<div class="trap-item">⚠ ${t}</div>`).join('')}</div>`:''}
       <button class="complete-btn" data-day="${day.day}">${isDone?'✓ Completado':'○ Marcar como completado'}</button>
     </div>`;
   card.querySelector('.day-card-header').addEventListener('click',()=>card.classList.toggle('open'));
