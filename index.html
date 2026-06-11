@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Journey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Variables ── */
+:root {
+  --bg:         #0D0B14;
+  --bg2:        #13101F;
+  --bg3:        #1A1628;
+  --border:     #2A2440;
+  --gold:       #F0A500;
+  --gold-dim:   #7A5200;
+  --teal:       #00C49A;
+  --teal-dim:   #004D3C;
+  --text:       #D4CDE8;
+  --text-dim:   #6B637F;
+  --text-muted: #3D3655;
+  --red:        #FF4D6D;
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+#header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.header-title h1 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.header-title p {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 3px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.header-stats {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Progress bar ── */
+.progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-track {
+  flex: 1;
+  height: 4px;
+  background: var(--bg3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 500ms ease;
+}
+
+.progress-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ── Heatmap ── */
+.heatmap-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.heatmap-day-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 0;
+}
+
+.heatmap-day-labels span {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+  height: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(16, 14px);
+  grid-template-rows: repeat(5, 14px);
+  grid-auto-flow: column;
+  gap: 3px;
+}
+
+.hm-cell {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--bg3);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 150ms ease, background 200ms ease;
+}
+
+.hm-cell:hover { transform: scale(1.15); }
+.hm-cell.today { border-color: #fff; }
+.hm-cell.done  { background: var(--gold); }
+
+@keyframes pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+.hm-cell.pop { animation: pop 300ms ease forwards; }
+
+/* ── Semana labels del heatmap ── */
+.heatmap-week-labels {
+  display: grid;
+  grid-template-columns: repeat(16, 14px);
+  gap: 3px;
+  margin-bottom: 2px;
+  margin-left: 0;
+}
+
+.heatmap-week-labels span {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ── Layout ── */
+.layout {
+  display: grid;
+  grid-template-columns: 200px 1fr 180px;
+  gap: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: calc(100vh - 130px);
+}
+
+/* ── Sidebar izquierdo ── */
+.sidebar-left {
+  position: sticky;
+  top: 130px;
+  height: calc(100vh - 130px);
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  padding: 16px 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.sidebar-left h3 {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0 16px 8px;
+}
+
+.week-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all 150ms ease;
+  gap: 8px;
+}
+
+.week-nav-item:hover {
+  background: var(--bg2);
+  color: #fff;
+}
+
+.week-nav-item.active {
+  border-left-color: var(--gold);
+  background: rgba(240, 165, 0, 0.05);
+  color: var(--gold);
+}
+
+.week-nav-item.active .wni-pct { color: var(--gold); }
+
+.wni-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wni-num {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.wni-title {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.wni-pct {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+/* ── Contenido principal ── */
+.content {
+  padding: 24px 32px;
+  max-width: 860px;
+}
+
+/* ── Sección de semana ── */
+.week-section {
+  margin-bottom: 48px;
+}
+
+.week-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.week-number {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 60px;
+}
+
+.week-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.week-badge-phase {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: auto;
+}
+
+.phase-1 { border-color: #7B5EA7; color: #7B5EA7; }
+.phase-2 { border-color: var(--gold); color: var(--gold); }
+.phase-3 { border-color: var(--teal); color: var(--teal); }
+.phase-4 { border-color: #E87C4A; color: #E87C4A; }
+
+.week-progress-mini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.week-progress-track {
+  width: 60px;
+  height: 3px;
+  background: var(--bg3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.week-progress-fill {
+  height: 100%;
+  background: var(--teal);
+  border-radius: 2px;
+  transition: width 400ms ease;
+}
+
+/* ── Day card ── */
+.day-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: border-color 200ms ease;
+}
+
+.day-card:hover { border-color: #3D3655; }
+.day-card.completed { border-color: var(--teal-dim); }
+.day-card.completed .day-card-header { background: rgba(0, 196, 154, 0.04); }
+
+.day-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 150ms ease;
+}
+
+.day-card-header:hover { background: rgba(255,255,255,0.02); }
+
+.day-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 42px;
+}
+
+.day-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  min-width: 50px;
+}
+
+.day-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  flex: 1;
+}
+
+.day-card.completed .day-title { color: var(--teal); }
+
+.day-status {
+  font-size: 12px;
+  color: var(--teal);
+  display: none;
+}
+
+.day-card.completed .day-status { display: block; }
+
+.day-expand-btn {
+  font-size: 10px;
+  color: var(--text-muted);
+  transition: transform 200ms ease;
+  flex-shrink: 0;
+}
+
+.day-card.open .day-expand-btn { transform: rotate(180deg); }
+
+/* ── Day card body ── */
+.day-card-body {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.day-card.open .day-card-body { display: block; }
+
+/* ── Secciones dentro del card ── */
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 16px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.theory-text p {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+
+.theory-text p:last-child { margin-bottom: 0; }
+
+.theory-text code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg3);
+  color: var(--gold);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* ── Código ── */
+.code-block {
+  background: #0A0914;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  position: relative;
+}
+
+.code-block pre {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre;
+  color: var(--text);
+}
+
+/* Syntax highlighting */
+.ck { color: var(--gold); }      /* keywords */
+.cs { color: var(--teal); }      /* strings */
+.cm { color: #6666AA; }          /* comments */
+.cf { color: #7EC8E3; }          /* functions */
+.cn { color: #CE9178; }          /* numbers */
+
+/* ── Práctica ── */
+.practice-box {
+  background: rgba(240, 165, 0, 0.05);
+  border: 1px solid rgba(240, 165, 0, 0.2);
+  border-radius: 4px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.practice-box strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* ── Botón completado ── */
+.complete-btn {
+  margin-top: 16px;
+  padding: 8px 18px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.complete-btn:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+  background: rgba(0, 196, 154, 0.05);
+}
+
+.day-card.completed .complete-btn {
+  border-color: var(--teal);
+  color: var(--teal);
+  background: rgba(0, 196, 154, 0.08);
+  cursor: default;
+}
+
+/* ── Sidebar derecho — Badges ── */
+.sidebar-right {
+  position: sticky;
+  top: 130px;
+  height: calc(100vh - 130px);
+  overflow-y: auto;
+  border-left: 1px solid var(--border);
+  padding: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.sidebar-right h3 {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+
+.badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+  text-align: center;
+  transition: all 200ms ease;
+}
+
+.badge-item.unlocked {
+  border-color: var(--gold-dim);
+  background: rgba(240, 165, 0, 0.06);
+}
+
+.badge-icon {
+  font-size: 22px;
+  filter: grayscale(1) opacity(0.3);
+}
+
+.badge-item.unlocked .badge-icon { filter: none; }
+
+.badge-name {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.badge-item.unlocked .badge-name { color: var(--gold); }
+
+.badge-week-req {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* ── Badge notification ── */
+.badge-notify {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-80px);
+  background: var(--bg3);
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 999;
+  box-shadow: 0 0 30px rgba(240, 165, 0, 0.25);
+  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.badge-notify.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+.badge-notify-icon { font-size: 24px; }
+
+.badge-notify-text strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--gold);
+}
+
+.badge-notify-text span {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* ── Tooltip ── */
+.tooltip {
+  position: fixed;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text);
+  pointer-events: none;
+  z-index: 500;
+  white-space: nowrap;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .layout { grid-template-columns: 180px 1fr; }
+  .sidebar-right { display: none; }
+}
+
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar-left { display: none; }
+  .content { padding: 16px; }
+  #header { padding: 12px 16px 10px; }
+  .header-title h1 { font-size: 18px; }
+  .heatmap-grid {
+    grid-template-columns: repeat(16, 12px);
+    grid-template-rows: repeat(5, 12px);
+  }
+  .hm-cell { width: 12px; height: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header id="header">
+  <div class="header-top">
+    <div class="header-title">
+      <h1>QA Journey</h1>
+      <p>De manual tester a automation engineer</p>
+    </div>
+    <div class="header-stats">
+      <div class="stat">
+        <span class="stat-value" id="stat-days">0</span>
+        <span class="stat-label">Días</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="stat-streak">0</span>
+        <span class="stat-label">Racha</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="stat-pct">0%</span>
+        <span class="stat-label">Progreso</span>
+      </div>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <span class="progress-label" id="progress-label">0/80</span>
+  </div>
+  <div class="heatmap-wrap">
+    <div class="heatmap-day-labels">
+      <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span>
+    </div>
+    <div>
+      <div class="heatmap-week-labels" id="heatmap-week-labels"></div>
+      <div class="heatmap-grid" id="heatmap"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Layout ── -->
+<div class="layout">
+
+  <!-- Sidebar izquierdo -->
+  <nav class="sidebar-left">
+    <h3>Semanas</h3>
+    <div id="week-nav"></div>
+  </nav>
+
+  <!-- Contenido principal -->
+  <main class="content" id="content"></main>
+
+  <!-- Sidebar derecho — Badges -->
+  <aside class="sidebar-right">
+    <h3>Logros</h3>
+    <div id="badges-list"></div>
+  </aside>
+
+</div>
+
+<!-- Tooltip -->
+<div id="tooltip" class="tooltip"></div>
+
+<!-- Badge notification -->
+<div id="badge-notify" class="badge-notify">
+  <span class="badge-notify-icon" id="badge-notify-icon"></span>
+  <div class="badge-notify-text">
+    <strong id="badge-notify-name"></strong>
+    <span>¡Logro desbloqueado!</span>
+  </div>
+</div>
+
+<script>
+// ── Currículo — Solo Semana 1 (el resto se agrega después) ──
+const CURRICULUM = [
+  {
+    week: 1,
+    title: "Variables y tipos de dato",
+    phase: 1,
+    phaseName: "JS Esencial",
+    badge: { icon: "⚔️", name: "JS Apprentice" },
+    days: [
+      {
+        day: 1,
+        title: "¿Qué es una variable? const vs let",
+        theory: [
+          "Una variable es como una caja con etiqueta. Dentro guardas algo —un texto, un número, lo que sea— y la etiqueta es el nombre que tú le das. Cuando necesitas ese valor, usas el nombre.",
+          "En JavaScript hay dos formas de crear variables: <code>const</code> y <code>let</code>. Usa <code>const</code> cuando el valor no va a cambiar (el nombre de la app). Usa <code>let</code> cuando el valor sí puede cambiar (el resultado de un test).",
+          "Regla simple: empieza siempre con <code>const</code>. Si necesitas cambiar el valor, cámbiala a <code>let</code>."
+        ],
+        code:
+`const appName = "SauceDemo";
+const urlBase = "https://www.saucedemo.com";
+
+let testResult = "pendiente"; // puede cambiar
+let intentos = 0;             // puede incrementar
+
+console.log(appName);    // "SauceDemo"
+console.log(testResult); // "pendiente"
+
+testResult = "pasado"; // válido con let
+// appName = "otro";   // Error: const no se puede reasignar`,
+        practice: "Abre <strong>playcode.io</strong> en tu browser. Crea 3 variables con const: tu nombre, tu empresa y tu rol. Luego crea una con let llamada <code>diasEstudiados</code> con valor 0. Cámbiala a 1 y ve qué pasa."
+      },
+      {
+        day: 2,
+        title: "Tipos: string, number, boolean",
+        theory: [
+          "JavaScript maneja tipos de datos automáticamente. Los tres más comunes son: texto (<strong>string</strong>), número (<strong>number</strong>) y verdadero/falso (<strong>boolean</strong>).",
+          "Un string es cualquier texto entre comillas. Un number es un número entero o decimal. Un boolean solo tiene dos valores: <code>true</code> o <code>false</code>. En QA los booleans aparecen todo el tiempo: ¿pasó el test?",
+          "Para saber qué tipo tiene una variable, usa <code>typeof</code>. Es útil cuando debuggeas y algo no funciona como esperabas."
+        ],
+        code:
+`// Strings — texto entre comillas
+const usuario = "standard_user";
+const password = 'secret_sauce';
+
+// Numbers
+const totalProductos = 6;
+const precio = 29.99;
+
+// Booleans
+const loginExitoso = true;
+const errorVisible = false;
+
+// typeof para ver el tipo
+console.log(typeof usuario);        // "string"
+console.log(typeof totalProductos); // "number"
+console.log(typeof loginExitoso);   // "boolean"`,
+        practice: "En playcode.io, crea una variable de cada tipo. Usa <code>console.log(typeof tuVariable)</code> para cada una. Luego intenta <code>const resultado = 5 + '3'</code>. ¿Qué ves? ¿Por qué es '53' y no 8?"
+      },
+      {
+        day: 3,
+        title: "Template literals — texto dinámico con ${}",
+        theory: [
+          "Imagina armar un mensaje con el nombre del usuario y el resultado del test concatenando con + —es feo y propenso a errores. Los template literals resuelven eso.",
+          "Usan backticks (`) en lugar de comillas. Dentro metes variables con <code>${nombreVariable}</code> y JavaScript inserta el valor automáticamente.",
+          "En Playwright los verás constantemente para construir mensajes de error, URLs dinámicas y descripciones de tests."
+        ],
+        code:
+`const usuario = "standard_user";
+const resultado = "PASADO";
+const duracion = 1.3;
+
+// Antes (concatenación — difícil de leer)
+const viejo = "Test de " + usuario + ": " + resultado;
+
+// Ahora (template literal — limpio)
+const mensaje = \`Test de \${usuario}: \${resultado} en \${duracion}s\`;
+console.log(mensaje);
+// "Test de standard_user: PASADO en 1.3s"
+
+// También funciona con expresiones
+const total = 6;
+const ok = 4;
+const reporte = \`Progreso: \${ok}/\${total} (\${Math.round(ok/total*100)}%)\`;
+console.log(reporte); // "Progreso: 4/6 (67%)"`,
+        practice: "En playcode.io, crea variables <code>usuario</code>, <code>nombreTest</code> y <code>resultado</code>. Arma un mensaje con template literal: <em>\"El usuario [usuario] ejecutó [nombreTest] con resultado [resultado]\"</em>. Cambia los valores y ve el mensaje cambiar."
+      },
+      {
+        day: 4,
+        title: "Operadores: aritméticos, comparación y lógicos",
+        theory: [
+          "Los operadores son los símbolos para hacer cosas con variables. Los aritméticos (+, -, *, /) hacen matemáticas. Los de comparación (<code>===</code>, <code>!==</code>, <code>&gt;</code>, <code>&lt;</code>) devuelven true o false. Los lógicos (<code>&&</code>, <code>||</code>) combinan condiciones.",
+          "El más importante para QA: <code>===</code> (triple igual). Verifica que dos valores sean iguales Y del mismo tipo. Nunca uses <code>==</code> — JavaScript hace conversiones raras que te van a confundir.",
+          "Con <code>&&</code> (AND) ambas condiciones deben ser true. Con <code>||</code> (OR) basta que una sea true. Piensa: el usuario existe AND la contraseña es correcta."
+        ],
+        code:
+`// Aritméticos
+const total = 6;
+const ok = 4;
+const pendientes = total - ok; // 2
+const pct = (ok / total) * 100; // 66.66
+
+// Comparación — siempre usar ===
+const usuario = "standard_user";
+console.log(usuario === "standard_user"); // true
+console.log(usuario === "admin_user");    // false
+console.log(pendientes !== 0);            // true
+
+// Lógicos
+const loginOk = true;
+const tokenValido = true;
+const acceso = loginOk && tokenValido; // true
+
+const esAdmin = false;
+const esTester = true;
+const puedeCorrer = esAdmin || esTester; // true`,
+        practice: "En playcode.io, crea <code>usuarioIngresado</code> y <code>passwordIngresado</code>. Compáralos con los valores correctos usando <code>===</code>. Combina las dos comparaciones con <code>&&</code> para saber si el login es exitoso. Imprime el resultado."
+      },
+      {
+        day: 5,
+        title: "Práctica integradora: script de reporte de QA",
+        theory: [
+          "Llegó el momento de usar todo junto. El mejor aprendizaje en programación es resolver un problema real, aunque sea pequeño.",
+          "No te preocupes si no sale perfecto a la primera. El ciclo es: escribir → ver el error → buscar qué falló → corregir. Ese ciclo es exactamente como se trabaja en automation.",
+          "Al terminar vas a haber combinado const, let, strings, numbers, booleans, template literals y operadores. Eso es más de lo que la mayoría aprende en su primer día."
+        ],
+        code:
+`// Mini-reporte de QA — Semana 1 completa
+const proyecto = "SauceDemo";
+const tester = "David";
+const fecha = "2025-06-14";
+
+const totalCasos = 10;
+let exitosos = 7;
+let fallidos = totalCasos - exitosos; // 3
+
+const pct = (exitosos / totalCasos) * 100;
+const aprobado = pct >= 70; // true
+
+const estado = aprobado ? "✅ APROBADO" : "❌ FALLIDO";
+
+const reporte = \`
+=== REPORTE DE QA ===
+Proyecto : \${proyecto}
+Tester   : \${tester}
+Fecha    : \${fecha}
+
+Total    : \${totalCasos}
+Exitosos : \${exitosos}
+Fallidos : \${fallidos}
+Éxito    : \${pct}%
+
+Estado   : \${estado}
+=====================\`;
+
+console.log(reporte);`,
+        practice: "Copia el código en <strong>playcode.io</strong> y ejecútalo. Luego: cambia <code>exitosos</code> a 5 y ve cómo cambia el estado. Agrega una variable <code>ambiente</code> con valor <em>\"staging\"</em> e inclúyela en el reporte. Agrega también el tiempo de ejecución en segundos."
+      }
+    ]
+  }
+  // ── Semanas 2-16 se agregarán aquí ──
+];
+
+// ── Badges de todas las semanas (para el sidebar) ──
+const ALL_BADGES = [
+  { week: 1,  icon: "⚔️",  name: "JS Apprentice" },
+  { week: 2,  icon: "📖",  name: "JS Practitioner" },
+  { week: 3,  icon: "🗂️",  name: "JS Confident" },
+  { week: 4,  icon: "⚡",  name: "JS Ready" },
+  { week: 5,  icon: "🚀",  name: "PW Initiate" },
+  { week: 6,  icon: "🎯",  name: "PW Selector" },
+  { week: 7,  icon: "✅",  name: "PW Tester" },
+  { week: 8,  icon: "🧭",  name: "PW Confident" },
+  { week: 9,  icon: "🏗️",  name: "POM Builder I" },
+  { week: 10, icon: "🔧",  name: "POM Builder II" },
+  { week: 11, icon: "🗃️",  name: "POM Builder III" },
+  { week: 12, icon: "🌐",  name: "POM Builder IV" },
+  { week: 13, icon: "⚙️",  name: "POM Builder V" },
+  { week: 14, icon: "💎",  name: "Portfolio Ready I" },
+  { week: 15, icon: "📝",  name: "Portfolio Ready II" },
+  { week: 16, icon: "🏆",  name: "Portfolio Ready III" }
+];
+
+// ── Estado ──
+const STORAGE_KEY = 'qa-tracker-progress';
+const START_DATE  = new Date('2025-06-10');
+const TOTAL_DAYS  = 80;
+
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { completedDays: [], unlockedBadges: [], lastVisited: null };
+}
+
+function saveState() {
+  state.lastVisited = new Date().toISOString().slice(0, 10);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// ── Calcula la fecha de un día del curso (solo días hábiles) ──
+function getDayDate(dayNum) {
+  let count = 0;
+  const d = new Date(START_DATE);
+  while (true) {
+    const dow = d.getDay();
+    if (dow !== 0 && dow !== 6) {
+      count++;
+      if (count === dayNum) break;
+    }
+    d.setDate(d.getDate() + 1);
+  }
+  return d;
+}
+
+function formatDate(d) {
+  const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return `${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+// ── Busca el día del curso que corresponde a hoy ──
+function getTodayDayNum() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  for (let i = 1; i <= TOTAL_DAYS; i++) {
+    const d = getDayDate(i);
+    d.setHours(0,0,0,0);
+    if (d.getTime() === today.getTime()) return i;
+    if (d > today) return null;
+  }
+  return null;
+}
+
+// ── Syntax highlighting básico ──
+function highlight(raw) {
+  const keywords = ['const','let','var','function','return','async','await',
+    'if','else','for','of','in','new','true','false','null','undefined',
+    'import','export','from','class','extends','this','typeof','try','catch','throw'];
+
+  // Escape HTML
+  let s = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  const placeholders = { s: [], c: [] };
+
+  // Extraer comentarios
+  s = s.replace(/(\/\/[^\n]*)/g, m => {
+    placeholders.c.push(m);
+    return `\x01C${placeholders.c.length - 1}\x01`;
+  });
+
+  // Extraer strings (backtick, double, single)
+  s = s.replace(/(`[^`]*`|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, m => {
+    placeholders.s.push(m);
+    return `\x01S${placeholders.s.length - 1}\x01`;
+  });
+
+  // Keywords
+  const kwRe = new RegExp(`\\b(${keywords.join('|')})\\b`, 'g');
+  s = s.replace(kwRe, '<span class="ck">$1</span>');
+
+  // Números
+  s = s.replace(/\b(\d+\.?\d*)\b/g, '<span class="cn">$1</span>');
+
+  // Funciones (word antes de '(')
+  s = s.replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*(?=\()/g, '<span class="cf">$1</span>');
+
+  // Restaurar strings y comentarios
+  s = s.replace(/\x01S(\d+)\x01/g, (_, i) => `<span class="cs">${placeholders.s[i]}</span>`);
+  s = s.replace(/\x01C(\d+)\x01/g, (_, i) => `<span class="cm">${placeholders.c[i]}</span>`);
+
+  return s;
+}
+
+// ── Calcular racha ──
+function calcStreak() {
+  if (!state.completedDays.length) return 0;
+  const sorted = [...state.completedDays].sort((a,b) => a - b);
+  const today = new Date(); today.setHours(0,0,0,0);
+  let streak = 0;
+  let check = new Date(today);
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    const d = getDayDate(sorted[i]);
+    d.setHours(0,0,0,0);
+    if (d.getTime() === check.getTime()) {
+      streak++;
+      check.setDate(check.getDate() - 1);
+      // saltar fines de semana
+      while (check.getDay() === 0 || check.getDay() === 6) {
+        check.setDate(check.getDate() - 1);
+      }
+    } else break;
+  }
+  return streak;
+}
+
+// ── Renderizar heatmap ──
+function renderHeatmap() {
+  const grid = document.getElementById('heatmap');
+  const labels = document.getElementById('heatmap-week-labels');
+  const todayNum = getTodayDayNum();
+  grid.innerHTML = '';
+  labels.innerHTML = '';
+
+  // Labels de semanas
+  for (let w = 1; w <= 16; w++) {
+    const sp = document.createElement('span');
+    sp.textContent = `S${w}`;
+    labels.appendChild(sp);
+  }
+
+  // 16 semanas × 5 días = 80 celdas
+  // grid-auto-flow: column → se llenan por columnas (semanas)
+  for (let w = 1; w <= 16; w++) {
+    for (let d = 1; d <= 5; d++) {
+      const dayNum = (w - 1) * 5 + d;
+      const cell = document.createElement('div');
+      cell.className = 'hm-cell';
+      cell.dataset.day = dayNum;
+
+      if (state.completedDays.includes(dayNum)) cell.classList.add('done');
+      if (dayNum === todayNum) cell.classList.add('today');
+
+      // Tooltip
+      cell.addEventListener('mouseenter', e => showTooltip(e, dayNum));
+      cell.addEventListener('mouseleave', hideTooltip);
+
+      grid.appendChild(cell);
+    }
+  }
+}
+
+// ── Tooltip del heatmap ──
+const tooltip = document.getElementById('tooltip');
+
+function showTooltip(e, dayNum) {
+  // Buscar el título del día
+  let title = `Día ${dayNum}`;
+  for (const w of CURRICULUM) {
+    for (const d of w.days) {
+      if (d.day === dayNum) { title = d.title; break; }
+    }
+  }
+  const week = Math.ceil(dayNum / 5);
+  const dayInWeek = ((dayNum - 1) % 5) + 1;
+  const date = formatDate(getDayDate(dayNum));
+  const done = state.completedDays.includes(dayNum);
+
+  tooltip.textContent = `S${week}·D${dayInWeek} · ${date} · ${title}${done ? ' ✓' : ''}`;
+  tooltip.style.display = 'block';
+  positionTooltip(e);
+}
+
+function positionTooltip(e) {
+  const x = e.clientX + 12;
+  const y = e.clientY - 28;
+  tooltip.style.left = Math.min(x, window.innerWidth - tooltip.offsetWidth - 8) + 'px';
+  tooltip.style.top  = Math.max(y, 8) + 'px';
+}
+
+document.addEventListener('mousemove', e => {
+  if (tooltip.style.display !== 'none') positionTooltip(e);
+});
+
+function hideTooltip() {
+  tooltip.style.display = 'none';
+}
+
+// ── Renderizar navegación lateral ──
+function renderWeekNav() {
+  const nav = document.getElementById('week-nav');
+  nav.innerHTML = '';
+
+  // Siempre mostrar las 16 semanas con datos de ALL_BADGES
+  for (let i = 0; i < 16; i++) {
+    const wNum = i + 1;
+    const wData = CURRICULUM.find(w => w.week === wNum);
+    const badge = ALL_BADGES[i];
+
+    // Calcular % completado de esta semana
+    const startDay = (wNum - 1) * 5 + 1;
+    const daysInWeek = [startDay, startDay+1, startDay+2, startDay+3, startDay+4];
+    const done = daysInWeek.filter(d => state.completedDays.includes(d)).length;
+    const pct = Math.round(done / 5 * 100);
+
+    const item = document.createElement('div');
+    item.className = 'week-nav-item';
+    item.dataset.week = wNum;
+    item.innerHTML = `
+      <div class="wni-left">
+        <span class="wni-num">Semana ${wNum}</span>
+        <span class="wni-title">${wData ? wData.title : badge.name}</span>
+      </div>
+      <span class="wni-pct">${pct}%</span>
+    `;
+
+    if (wData) {
+      item.addEventListener('click', () => {
+        document.getElementById(`week-${wNum}`)?.scrollIntoView({ behavior: 'smooth' });
+      });
+    } else {
+      item.style.opacity = '0.4';
+    }
+
+    nav.appendChild(item);
+  }
+}
+
+// ── Renderizar contenido ──
+function renderContent() {
+  const content = document.getElementById('content');
+  content.innerHTML = '';
+
+  for (const week of CURRICULUM) {
+    const section = document.createElement('section');
+    section.className = 'week-section';
+    section.id = `week-${week.week}`;
+
+    // Calcular progreso de la semana
+    const startDay = (week.week - 1) * 5 + 1;
+    const weekDays = week.days.map(d => d.day);
+    const doneDays = weekDays.filter(d => state.completedDays.includes(d)).length;
+    const weekPct = Math.round(doneDays / 5 * 100);
+
+    section.innerHTML = `
+      <div class="week-header">
+        <span class="week-number">SEMANA ${week.week.toString().padStart(2,'0')}</span>
+        <h2 class="week-title">${week.title}</h2>
+        <span class="week-badge-phase phase-${week.phase}">${week.phaseName}</span>
+        <div class="week-progress-mini" style="margin-left:12px">
+          <div class="week-progress-track">
+            <div class="week-progress-fill" style="width:${weekPct}%"></div>
+          </div>
+          <span>${doneDays}/5</span>
+        </div>
+      </div>
+      <div class="week-days" id="week-days-${week.week}"></div>
+    `;
+
+    content.appendChild(section);
+
+    // Renderizar day cards
+    const daysContainer = section.querySelector('.week-days');
+    for (const day of week.days) {
+      daysContainer.appendChild(buildDayCard(day));
+    }
+  }
+}
+
+// ── Construir una day card ──
+function buildDayCard(day) {
+  const isDone = state.completedDays.includes(day.day);
+  const date = formatDate(getDayDate(day.day));
+  const todayNum = getTodayDayNum();
+  const isToday = day.day === todayNum;
+
+  const card = document.createElement('div');
+  card.className = `day-card${isDone ? ' completed' : ''}`;
+  card.id = `day-card-${day.day}`;
+
+  card.innerHTML = `
+    <div class="day-card-header" data-day="${day.day}">
+      <span class="day-num">Día ${day.day.toString().padStart(2,'0')}</span>
+      <span class="day-date">${date}${isToday ? ' ◀' : ''}</span>
+      <span class="day-title">${day.title}</span>
+      <span class="day-status">✓</span>
+      <span class="day-expand-btn">▼</span>
+    </div>
+    <div class="day-card-body">
+      <div class="section-label">Teoría</div>
+      <div class="theory-text">${day.theory.map(p => `<p>${p}</p>`).join('')}</div>
+
+      <div class="section-label">Ejemplo</div>
+      <div class="code-block">
+        <pre>${highlight(day.code)}</pre>
+      </div>
+
+      <div class="section-label">Práctica</div>
+      <div class="practice-box">${day.practice}</div>
+
+      <button class="complete-btn" data-day="${day.day}">
+        ${isDone ? '✓ Completado' : '○ Marcar como completado'}
+      </button>
+    </div>
+  `;
+
+  // Toggle expand
+  const header = card.querySelector('.day-card-header');
+  header.addEventListener('click', () => toggleCard(card));
+
+  // Botón completar
+  const btn = card.querySelector('.complete-btn');
+  if (!isDone) {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      markDayDone(day.day, card, btn);
+    });
+  }
+
+  // Si es hoy, abrirlo automáticamente
+  if (isToday && !isDone) {
+    card.classList.add('open');
+  }
+
+  return card;
+}
+
+function toggleCard(card) {
+  card.classList.toggle('open');
+}
+
+// ── Marcar día como completado ──
+function markDayDone(dayNum, card, btn) {
+  if (state.completedDays.includes(dayNum)) return;
+
+  state.completedDays.push(dayNum);
+  saveState();
+
+  // Actualizar card
+  card.classList.add('completed');
+  btn.textContent = '✓ Completado';
+  btn.removeEventListener('click', () => {});
+
+  // Animar celda del heatmap
+  const cell = document.querySelector(`.hm-cell[data-day="${dayNum}"]`);
+  if (cell) {
+    cell.classList.add('done', 'pop');
+    cell.addEventListener('animationend', () => cell.classList.remove('pop'), { once: true });
+  }
+
+  // Actualizar stats y barras
+  updateStats();
+  updateWeekProgress(Math.ceil(dayNum / 5));
+
+  // Verificar badge
+  checkBadge(Math.ceil(dayNum / 5));
+}
+
+// ── Actualizar stats del header ──
+function updateStats() {
+  const done = state.completedDays.length;
+  const pct  = Math.round(done / TOTAL_DAYS * 100);
+
+  document.getElementById('stat-days').textContent  = done;
+  document.getElementById('stat-streak').textContent = calcStreak();
+  document.getElementById('stat-pct').textContent   = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${done}/${TOTAL_DAYS}`;
+
+  // Actualizar sidebar nav
+  document.querySelectorAll('.week-nav-item').forEach(item => {
+    const wNum = parseInt(item.dataset.week);
+    const startDay = (wNum - 1) * 5 + 1;
+    const daysInWeek = [startDay, startDay+1, startDay+2, startDay+3, startDay+4];
+    const doneW = daysInWeek.filter(d => state.completedDays.includes(d)).length;
+    item.querySelector('.wni-pct').textContent = Math.round(doneW / 5 * 100) + '%';
+  });
+}
+
+function updateWeekProgress(weekNum) {
+  const startDay = (weekNum - 1) * 5 + 1;
+  const daysInWeek = [startDay, startDay+1, startDay+2, startDay+3, startDay+4];
+  const done = daysInWeek.filter(d => state.completedDays.includes(d)).length;
+  const fill = document.querySelector(`#week-${weekNum} .week-progress-fill`);
+  const label = document.querySelector(`#week-${weekNum} .week-progress-mini span`);
+  if (fill) fill.style.width = Math.round(done / 5 * 100) + '%';
+  if (label) label.textContent = `${done}/5`;
+}
+
+// ── Verificar y mostrar badge ──
+function checkBadge(weekNum) {
+  const startDay = (weekNum - 1) * 5 + 1;
+  const daysInWeek = [startDay, startDay+1, startDay+2, startDay+3, startDay+4];
+  const allDone = daysInWeek.every(d => state.completedDays.includes(d));
+
+  if (!allDone) return;
+
+  const badge = ALL_BADGES[weekNum - 1];
+  if (!badge || state.unlockedBadges.includes(badge.name)) return;
+
+  state.unlockedBadges.push(badge.name);
+  saveState();
+
+  // Mostrar notificación
+  showBadgeNotification(badge);
+
+  // Actualizar sidebar de badges
+  renderBadgesSidebar();
+}
+
+function showBadgeNotification(badge) {
+  const notify = document.getElementById('badge-notify');
+  document.getElementById('badge-notify-icon').textContent = badge.icon;
+  document.getElementById('badge-notify-name').textContent = badge.name;
+  notify.classList.add('show');
+  setTimeout(() => notify.classList.remove('show'), 3000);
+}
+
+// ── Renderizar badges sidebar ──
+function renderBadgesSidebar() {
+  const list = document.getElementById('badges-list');
+  list.innerHTML = '';
+
+  for (const b of ALL_BADGES) {
+    const unlocked = state.unlockedBadges.includes(b.name);
+    const item = document.createElement('div');
+    item.className = `badge-item${unlocked ? ' unlocked' : ''}`;
+    item.innerHTML = `
+      <span class="badge-icon">${b.icon}</span>
+      <span class="badge-name">${b.name}</span>
+      <span class="badge-week-req">Sem. ${b.week}</span>
+    `;
+    list.appendChild(item);
+  }
+}
+
+// ── Scroll spy para sidebar activo ──
+function initScrollSpy() {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const weekNum = entry.target.id.replace('week-', '');
+        document.querySelectorAll('.week-nav-item').forEach(item => {
+          item.classList.toggle('active', item.dataset.week === weekNum);
+        });
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  document.querySelectorAll('.week-section').forEach(s => observer.observe(s));
+}
+
+// ── Init ──
+function init() {
+  renderHeatmap();
+  renderWeekNav();
+  renderContent();
+  renderBadgesSidebar();
+  updateStats();
+  initScrollSpy();
+
+  // Si hay días completados, actualizar progress de semanas
+  const weeks = [...new Set(state.completedDays.map(d => Math.ceil(d / 5)))];
+  weeks.forEach(w => updateWeekProgress(w));
+}
+
+init();
+</script>
+</body>
+</html>
