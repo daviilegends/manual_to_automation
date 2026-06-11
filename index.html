@@ -8,683 +8,224 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ── Variables ── */
 :root {
-  --bg:         #0D0B14;
-  --bg2:        #13101F;
-  --bg3:        #1A1628;
-  --border:     #2A2440;
-  --gold:       #F0A500;
-  --gold-dim:   #7A5200;
-  --teal:       #00C49A;
-  --teal-dim:   #004D3C;
-  --text:       #D4CDE8;
-  --text-dim:   #6B637F;
-  --text-muted: #3D3655;
-  --red:        #FF4D6D;
-  --font-display: 'Syne', sans-serif;
-  --font-body:    'Inter', sans-serif;
-  --font-mono:    'JetBrains Mono', monospace;
+  --bg:       #0D0B14;
+  --bg2:      #13101F;
+  --bg3:      #1A1628;
+  --border:   #2A2440;
+  --gold:     #F0A500;
+  --gold-dim: #7A5200;
+  --teal:     #00C49A;
+  --teal-dim: #004D3C;
+  --text:     #D4CDE8;
+  --text-dim: #6B637F;
+  --text-muted:#3D3655;
+  --red:      #FF4D6D;
+  --font-display:'Syne',sans-serif;
+  --font-body:   'Inter',sans-serif;
+  --font-mono:   'JetBrains Mono',monospace;
 }
-
-/* ── Reset ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.6;
-  min-height: 100vh;
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:14px;line-height:1.6;min-height:100vh;}
 
 /* ── Header ── */
-#header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  padding: 16px 24px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.header-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.header-title h1 {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: -0.5px;
-  line-height: 1;
-}
-
-.header-title p {
-  font-size: 11px;
-  color: var(--text-dim);
-  margin-top: 3px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-.header-stats {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-shrink: 0;
-}
-
-.stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-}
-
-.stat-value {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--gold);
-  line-height: 1;
-}
-
-.stat-label {
-  font-size: 10px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* ── Progress bar ── */
-.progress-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.progress-track {
-  flex: 1;
-  height: 4px;
-  background: var(--bg3);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--gold);
-  border-radius: 2px;
-  width: 0%;
-  transition: width 500ms ease;
-}
-
-.progress-label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-dim);
-  min-width: 36px;
-  text-align: right;
-}
-
-/* ── Heatmap ── */
-.heatmap-wrap {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-}
-
-.heatmap-day-labels {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding-top: 0;
-}
-
-.heatmap-day-labels span {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  color: var(--text-muted);
-  height: 14px;
-  display: flex;
-  align-items: center;
-}
-
-.heatmap-grid {
-  display: grid;
-  grid-template-columns: repeat(16, 14px);
-  grid-template-rows: repeat(5, 14px);
-  grid-auto-flow: column;
-  gap: 3px;
-}
-
-.hm-cell {
-  width: 14px;
-  height: 14px;
-  border-radius: 2px;
-  background: var(--bg3);
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: transform 150ms ease, background 200ms ease;
-}
-
-.hm-cell:hover { transform: scale(1.15); }
-.hm-cell.today { border-color: #fff; }
-.hm-cell.done  { background: var(--gold); }
-
-@keyframes pop {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(1.4); }
-  100% { transform: scale(1); }
-}
-.hm-cell.pop { animation: pop 300ms ease forwards; }
-
-/* ── Semana labels del heatmap ── */
-.heatmap-week-labels {
-  display: grid;
-  grid-template-columns: repeat(16, 14px);
-  gap: 3px;
-  margin-bottom: 2px;
-  margin-left: 0;
-}
-
-.heatmap-week-labels span {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  color: var(--text-muted);
-  text-align: center;
-}
+#header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:16px 24px 12px;display:flex;flex-direction:column;gap:10px;}
+.header-top{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.header-title h1{font-family:var(--font-display);font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1;}
+.header-title p{font-size:11px;color:var(--text-dim);margin-top:3px;letter-spacing:.5px;text-transform:uppercase;}
+.header-stats{display:flex;align-items:center;gap:20px;flex-shrink:0;}
+.stat{display:flex;flex-direction:column;align-items:center;gap:1px;}
+.stat-value{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--gold);line-height:1;}
+.stat-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;}
+.progress-wrap{display:flex;align-items:center;gap:10px;}
+.progress-track{flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--gold);border-radius:2px;width:0%;transition:width 500ms ease;}
+.progress-label{font-family:var(--font-mono);font-size:11px;color:var(--text-dim);min-width:36px;text-align:right;}
+.heatmap-wrap{display:flex;align-items:flex-start;gap:6px;}
+.heatmap-day-labels{display:flex;flex-direction:column;gap:3px;}
+.heatmap-day-labels span{font-family:var(--font-mono);font-size:9px;color:var(--text-muted);height:14px;display:flex;align-items:center;}
+.heatmap-week-labels{display:grid;grid-template-columns:repeat(16,14px);gap:3px;margin-bottom:2px;}
+.heatmap-week-labels span{font-family:var(--font-mono);font-size:8px;color:var(--text-muted);text-align:center;}
+.heatmap-grid{display:grid;grid-template-columns:repeat(16,14px);grid-template-rows:repeat(5,14px);grid-auto-flow:column;gap:3px;}
+.hm-cell{width:14px;height:14px;border-radius:2px;background:var(--bg3);border:1px solid transparent;cursor:pointer;transition:transform 150ms ease,background 200ms ease;}
+.hm-cell:hover{transform:scale(1.15);}
+.hm-cell.today{border-color:#fff;}
+.hm-cell.done{background:var(--gold);}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+.hm-cell.pop{animation:pop 300ms ease forwards;}
 
 /* ── Layout ── */
-.layout {
-  display: grid;
-  grid-template-columns: 200px 1fr 180px;
-  gap: 0;
-  max-width: 1400px;
-  margin: 0 auto;
-  min-height: calc(100vh - 130px);
-}
+.layout{display:grid;grid-template-columns:200px 1fr 180px;gap:0;max-width:1400px;margin:0 auto;min-height:calc(100vh - 150px);}
+.sidebar-left{position:sticky;top:148px;height:calc(100vh - 148px);overflow-y:auto;border-right:1px solid var(--border);padding:16px 0;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.sidebar-left h3{font-family:var(--font-display);font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:0 16px 8px;}
+.week-nav-item{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;cursor:pointer;border-left:2px solid transparent;transition:all 150ms ease;gap:8px;}
+.week-nav-item:hover{background:var(--bg2);color:#fff;}
+.week-nav-item.active{border-left-color:var(--gold);background:rgba(240,165,0,.05);color:var(--gold);}
+.week-nav-item.active .wni-pct{color:var(--gold);}
+.wni-left{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.wni-num{font-family:var(--font-mono);font-size:9px;color:var(--text-muted);}
+.wni-title{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;}
+.wni-pct{font-family:var(--font-mono);font-size:11px;color:var(--text-dim);flex-shrink:0;}
+.nav-playground-item{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;border-left:2px solid transparent;transition:all 150ms ease;margin-top:8px;border-top:1px solid var(--border);padding-top:16px;}
+.nav-playground-item:hover{background:var(--bg2);}
+.nav-playground-item.active{border-left-color:var(--teal);background:rgba(0,196,154,.05);color:var(--teal);}
+.nav-playground-item .wni-title{color:var(--teal);}
 
-/* ── Sidebar izquierdo ── */
-.sidebar-left {
-  position: sticky;
-  top: 130px;
-  height: calc(100vh - 130px);
-  overflow-y: auto;
-  border-right: 1px solid var(--border);
-  padding: 16px 0;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-}
+/* ── Content ── */
+.content{padding:24px 32px;max-width:860px;}
+.week-section{margin-bottom:48px;}
+.week-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.week-number{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);min-width:60px;}
+.week-title{font-family:var(--font-display);font-size:18px;font-weight:700;color:#fff;}
+.week-badge-phase{font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;text-transform:uppercase;letter-spacing:.5px;margin-left:auto;}
+.phase-1{border-color:#7B5EA7;color:#7B5EA7;}
+.phase-2{border-color:var(--gold);color:var(--gold);}
+.phase-3{border-color:var(--teal);color:var(--teal);}
+.phase-4{border-color:#E87C4A;color:#E87C4A;}
+.week-progress-mini{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:11px;color:var(--text-dim);}
+.week-progress-track{width:60px;height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.week-progress-fill{height:100%;background:var(--teal);border-radius:2px;transition:width 400ms ease;}
+.day-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;margin-bottom:10px;overflow:hidden;transition:border-color 200ms ease;}
+.day-card:hover{border-color:#3D3655;}
+.day-card.completed{border-color:var(--teal-dim);}
+.day-card.completed .day-card-header{background:rgba(0,196,154,.04);}
+.day-card-header{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;user-select:none;transition:background 150ms ease;}
+.day-card-header:hover{background:rgba(255,255,255,.02);}
+.day-num{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);min-width:42px;}
+.day-date{font-family:var(--font-mono);font-size:11px;color:var(--text-dim);min-width:50px;}
+.day-title{font-size:13px;font-weight:500;color:var(--text);flex:1;}
+.day-card.completed .day-title{color:var(--teal);}
+.day-status{font-size:12px;color:var(--teal);display:none;}
+.day-card.completed .day-status{display:block;}
+.day-expand-btn{font-size:10px;color:var(--text-muted);transition:transform 200ms ease;flex-shrink:0;}
+.day-card.open .day-expand-btn{transform:rotate(180deg);}
+.day-card-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);}
+.day-card.open .day-card-body{display:block;}
+.section-label{font-family:var(--font-mono);font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin:16px 0 8px;display:flex;align-items:center;gap:6px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.theory-text p{font-size:13px;color:var(--text);line-height:1.7;margin-bottom:8px;}
+.theory-text p:last-child{margin-bottom:0;}
+.theory-text code{font-family:var(--font-mono);font-size:12px;background:var(--bg3);color:var(--gold);padding:1px 5px;border-radius:3px;}
+.code-block{background:#0A0914;border:1px solid var(--border);border-radius:4px;padding:14px 16px;overflow-x:auto;}
+.code-block pre{font-family:var(--font-mono);font-size:12px;line-height:1.7;white-space:pre;color:var(--text);}
+.ck{color:var(--gold);}
+.cs{color:var(--teal);}
+.cm{color:#6666AA;}
+.cf{color:#7EC8E3;}
+.cn{color:#CE9178;}
+.practice-box{background:rgba(240,165,0,.05);border:1px solid rgba(240,165,0,.2);border-radius:4px;padding:12px 14px;font-size:13px;color:var(--text);line-height:1.7;}
+.practice-box strong{color:var(--gold);font-weight:600;}
+.complete-btn{margin-top:16px;padding:8px 18px;background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--text-dim);font-family:var(--font-body);font-size:12px;font-weight:500;cursor:pointer;transition:all 200ms ease;display:flex;align-items:center;gap:6px;}
+.complete-btn:hover{border-color:var(--teal);color:var(--teal);background:rgba(0,196,154,.05);}
+.day-card.completed .complete-btn{border-color:var(--teal);color:var(--teal);background:rgba(0,196,154,.08);cursor:default;}
 
-.sidebar-left h3 {
-  font-family: var(--font-display);
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 0 16px 8px;
-}
-
-.week-nav-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 16px;
-  cursor: pointer;
-  border-left: 2px solid transparent;
-  transition: all 150ms ease;
-  gap: 8px;
-}
-
-.week-nav-item:hover {
-  background: var(--bg2);
-  color: #fff;
-}
-
-.week-nav-item.active {
-  border-left-color: var(--gold);
-  background: rgba(240, 165, 0, 0.05);
-  color: var(--gold);
-}
-
-.week-nav-item.active .wni-pct { color: var(--gold); }
-
-.wni-left {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.wni-num {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  color: var(--text-muted);
-}
-
-.wni-title {
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 120px;
-}
-
-.wni-pct {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-dim);
-  flex-shrink: 0;
-}
-
-/* ── Contenido principal ── */
-.content {
-  padding: 24px 32px;
-  max-width: 860px;
-}
-
-/* ── Sección de semana ── */
-.week-section {
-  margin-bottom: 48px;
-}
-
-.week-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
-}
-
-.week-number {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-muted);
-  min-width: 60px;
-}
-
-.week-title {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.week-badge-phase {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 3px;
-  border: 1px solid;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-left: auto;
-}
-
-.phase-1 { border-color: #7B5EA7; color: #7B5EA7; }
-.phase-2 { border-color: var(--gold); color: var(--gold); }
-.phase-3 { border-color: var(--teal); color: var(--teal); }
-.phase-4 { border-color: #E87C4A; color: #E87C4A; }
-
-.week-progress-mini {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-dim);
-}
-
-.week-progress-track {
-  width: 60px;
-  height: 3px;
-  background: var(--bg3);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.week-progress-fill {
-  height: 100%;
-  background: var(--teal);
-  border-radius: 2px;
-  transition: width 400ms ease;
-}
-
-/* ── Day card ── */
-.day-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  margin-bottom: 10px;
-  overflow: hidden;
-  transition: border-color 200ms ease;
-}
-
-.day-card:hover { border-color: #3D3655; }
-.day-card.completed { border-color: var(--teal-dim); }
-.day-card.completed .day-card-header { background: rgba(0, 196, 154, 0.04); }
-
-.day-card-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  cursor: pointer;
-  user-select: none;
-  transition: background 150ms ease;
-}
-
-.day-card-header:hover { background: rgba(255,255,255,0.02); }
-
-.day-num {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-muted);
-  min-width: 42px;
-}
-
-.day-date {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-dim);
-  min-width: 50px;
-}
-
-.day-title {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text);
-  flex: 1;
-}
-
-.day-card.completed .day-title { color: var(--teal); }
-
-.day-status {
-  font-size: 12px;
-  color: var(--teal);
-  display: none;
-}
-
-.day-card.completed .day-status { display: block; }
-
-.day-expand-btn {
-  font-size: 10px;
-  color: var(--text-muted);
-  transition: transform 200ms ease;
-  flex-shrink: 0;
-}
-
-.day-card.open .day-expand-btn { transform: rotate(180deg); }
-
-/* ── Day card body ── */
-.day-card-body {
-  display: none;
-  padding: 0 16px 16px;
-  border-top: 1px solid var(--border);
-}
-
-.day-card.open .day-card-body { display: block; }
-
-/* ── Secciones dentro del card ── */
-.section-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin: 16px 0 8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.section-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-.theory-text p {
-  font-size: 13px;
-  color: var(--text);
-  line-height: 1.7;
-  margin-bottom: 8px;
-}
-
-.theory-text p:last-child { margin-bottom: 0; }
-
-.theory-text code {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  background: var(--bg3);
-  color: var(--gold);
-  padding: 1px 5px;
-  border-radius: 3px;
-}
-
-/* ── Código ── */
-.code-block {
-  background: #0A0914;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 14px 16px;
-  overflow-x: auto;
-  position: relative;
-}
-
-.code-block pre {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  line-height: 1.7;
-  white-space: pre;
-  color: var(--text);
-}
-
-/* Syntax highlighting */
-.ck { color: var(--gold); }      /* keywords */
-.cs { color: var(--teal); }      /* strings */
-.cm { color: #6666AA; }          /* comments */
-.cf { color: #7EC8E3; }          /* functions */
-.cn { color: #CE9178; }          /* numbers */
-
-/* ── Práctica ── */
-.practice-box {
-  background: rgba(240, 165, 0, 0.05);
-  border: 1px solid rgba(240, 165, 0, 0.2);
-  border-radius: 4px;
-  padding: 12px 14px;
-  font-size: 13px;
-  color: var(--text);
-  line-height: 1.7;
-}
-
-.practice-box strong {
-  color: var(--gold);
-  font-weight: 600;
-}
-
-/* ── Botón completado ── */
-.complete-btn {
-  margin-top: 16px;
-  padding: 8px 18px;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  color: var(--text-dim);
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 200ms ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.complete-btn:hover {
-  border-color: var(--teal);
-  color: var(--teal);
-  background: rgba(0, 196, 154, 0.05);
-}
-
-.day-card.completed .complete-btn {
-  border-color: var(--teal);
-  color: var(--teal);
-  background: rgba(0, 196, 154, 0.08);
-  cursor: default;
-}
-
-/* ── Sidebar derecho — Badges ── */
-.sidebar-right {
-  position: sticky;
-  top: 130px;
-  height: calc(100vh - 130px);
-  overflow-y: auto;
-  border-left: 1px solid var(--border);
-  padding: 16px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-}
-
-.sidebar-right h3 {
-  font-family: var(--font-display);
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 14px;
-}
-
-.badge-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 8px;
-  border-radius: 4px;
-  border: 1px solid var(--border);
-  margin-bottom: 8px;
-  text-align: center;
-  transition: all 200ms ease;
-}
-
-.badge-item.unlocked {
-  border-color: var(--gold-dim);
-  background: rgba(240, 165, 0, 0.06);
-}
-
-.badge-icon {
-  font-size: 22px;
-  filter: grayscale(1) opacity(0.3);
-}
-
-.badge-item.unlocked .badge-icon { filter: none; }
-
-.badge-name {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-muted);
-  line-height: 1.3;
-}
-
-.badge-item.unlocked .badge-name { color: var(--gold); }
-
-.badge-week-req {
-  font-size: 10px;
-  color: var(--text-muted);
-}
+/* ── Sidebar derecho ── */
+.sidebar-right{position:sticky;top:148px;height:calc(100vh - 148px);overflow-y:auto;border-left:1px solid var(--border);padding:16px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.sidebar-right h3{font-family:var(--font-display);font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
+.badge-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:4px;border:1px solid var(--border);margin-bottom:8px;text-align:center;transition:all 200ms ease;}
+.badge-item.unlocked{border-color:var(--gold-dim);background:rgba(240,165,0,.06);}
+.badge-icon{font-size:22px;filter:grayscale(1) opacity(.3);}
+.badge-item.unlocked .badge-icon{filter:none;}
+.badge-name{font-family:var(--font-mono);font-size:10px;color:var(--text-muted);line-height:1.3;}
+.badge-item.unlocked .badge-name{color:var(--gold);}
+.badge-week-req{font-size:10px;color:var(--text-muted);}
 
 /* ── Badge notification ── */
-.badge-notify {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-80px);
-  background: var(--bg3);
-  border: 1px solid var(--gold);
-  border-radius: 4px;
-  padding: 12px 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  z-index: 999;
-  box-shadow: 0 0 30px rgba(240, 165, 0, 0.25);
-  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
-  pointer-events: none;
-}
+.badge-notify{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--bg3);border:1px solid var(--gold);border-radius:4px;padding:12px 20px;display:flex;align-items:center;gap:12px;z-index:999;box-shadow:0 0 30px rgba(240,165,0,.25);transition:transform 400ms cubic-bezier(.34,1.56,.64,1);pointer-events:none;}
+.badge-notify.show{transform:translateX(-50%) translateY(0);}
+.badge-notify-icon{font-size:24px;}
+.badge-notify-text strong{display:block;font-family:var(--font-display);font-size:14px;color:var(--gold);}
+.badge-notify-text span{font-size:12px;color:var(--text-dim);}
 
-.badge-notify.show {
-  transform: translateX(-50%) translateY(0);
-}
-
-.badge-notify-icon { font-size: 24px; }
-
-.badge-notify-text strong {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 14px;
-  color: var(--gold);
-}
-
-.badge-notify-text span {
-  font-size: 12px;
-  color: var(--text-dim);
-}
+/* ── XP Toast ── */
+.xp-toast{position:fixed;top:80px;right:30px;background:var(--bg3);border:1px solid var(--teal);border-radius:4px;padding:8px 16px;font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--teal);z-index:998;pointer-events:none;transform:translateY(0) scale(1);opacity:1;transition:all 600ms ease;}
+.xp-toast.hide{transform:translateY(-30px) scale(0.9);opacity:0;}
 
 /* ── Tooltip ── */
-.tooltip {
-  position: fixed;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 6px 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text);
-  pointer-events: none;
-  z-index: 500;
-  white-space: nowrap;
-}
+.tooltip{position:fixed;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-family:var(--font-mono);font-size:11px;color:var(--text);pointer-events:none;z-index:500;white-space:nowrap;}
+
+/* ══════════════════════════════════
+   LOCATOR PLAYGROUND
+══════════════════════════════════ */
+.pg-section{margin-bottom:48px;}
+
+.pg-challenge-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.pg-select{background:var(--bg2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:var(--font-mono);font-size:12px;padding:6px 10px;cursor:pointer;outline:none;}
+.pg-select:focus{border-color:var(--teal);}
+.pg-difficulty{display:flex;gap:3px;align-items:center;}
+.pg-star{font-size:11px;color:var(--text-muted);}
+.pg-star.on{color:var(--gold);}
+.pg-xp-total{margin-left:auto;font-family:var(--font-mono);font-size:12px;color:var(--gold);}
+.pg-xp-total span{font-size:16px;font-weight:700;}
+
+.pg-container{display:grid;grid-template-columns:1fr 1fr;gap:16px;min-height:340px;}
+
+.pg-left{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;}
+.pg-left-label{font-family:var(--font-mono);font-size:10px;color:var(--text-muted);padding:8px 12px;border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;}
+.pg-iframe-wrap{flex:1;background:#fff;position:relative;}
+.pg-iframe{width:100%;height:100%;border:none;min-height:280px;display:block;}
+.pg-match-badge{position:absolute;bottom:8px;right:8px;font-family:var(--font-mono);font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;transition:all 200ms ease;}
+.pg-match-zero{background:rgba(255,77,109,.15);color:var(--red);border:1px solid rgba(255,77,109,.3);}
+.pg-match-one{background:rgba(0,196,154,.15);color:var(--teal);border:1px solid rgba(0,196,154,.3);}
+.pg-match-many{background:rgba(240,165,0,.15);color:var(--gold);border:1px solid rgba(240,165,0,.3);}
+
+.pg-right{display:flex;flex-direction:column;gap:12px;}
+.pg-challenge-desc{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:14px;}
+.pg-challenge-label{font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.pg-challenge-text{font-size:13px;color:#fff;font-weight:500;line-height:1.5;}
+
+.pg-input-wrap{position:relative;}
+.pg-locator-input{width:100%;background:#0A0914;border:1px solid var(--border);border-radius:4px;padding:10px 14px;font-family:var(--font-mono);font-size:13px;color:var(--text);outline:none;caret-color:var(--gold);transition:border-color 200ms ease;}
+.pg-locator-input:focus{border-color:var(--text-muted);}
+.pg-locator-input.valid{border-color:var(--teal);}
+.pg-locator-input.invalid{border-color:var(--red);}
+.pg-input-hint{font-size:11px;color:var(--text-muted);margin-top:4px;font-family:var(--font-mono);}
+
+.pg-warning{background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.3);border-radius:3px;padding:8px 12px;font-size:12px;color:#FFA500;display:none;}
+.pg-warning.show{display:block;}
+
+.pg-feedback-row{display:flex;gap:8px;align-items:center;}
+.pg-attempts{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);}
+.pg-clear-btn{padding:6px 12px;background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--text-dim);font-size:12px;cursor:pointer;transition:all 150ms ease;}
+.pg-clear-btn:hover{border-color:var(--text-muted);color:var(--text);}
+.pg-submit-btn{padding:6px 14px;background:transparent;border:1px solid var(--teal);border-radius:3px;color:var(--teal);font-size:12px;cursor:pointer;transition:all 150ms ease;font-weight:600;}
+.pg-submit-btn:hover{background:rgba(0,196,154,.1);}
+
+.pg-result{border-radius:4px;padding:12px 14px;font-size:13px;display:none;}
+.pg-result.show{display:block;}
+.pg-result.correct{background:rgba(0,196,154,.08);border:1px solid rgba(0,196,154,.25);color:var(--teal);}
+.pg-result.wrong{background:rgba(255,77,109,.08);border:1px solid rgba(255,77,109,.25);color:var(--red);}
+.pg-result.hint{background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.2);color:var(--text);}
+
+.pg-lesson{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:4px;padding:12px 14px;font-size:12px;color:var(--text);line-height:1.7;display:none;animation:fadeIn 400ms ease;}
+.pg-lesson.show{display:block;}
+.pg-lesson strong{color:var(--gold);}
+
+.pg-best{margin-top:8px;font-family:var(--font-mono);font-size:12px;color:var(--text-dim);}
+.pg-best span{color:var(--teal);}
+
+.pg-xp-reward{font-family:var(--font-mono);font-size:11px;color:var(--gold);margin-top:6px;}
+
+.pg-challenge-8-inputs{display:flex;flex-direction:column;gap:8px;}
+.pg-c8-counter{font-family:var(--font-mono);font-size:12px;color:var(--text-dim);margin-top:4px;}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Footer ── */
+footer{border-top:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);}
+footer a{color:var(--text-muted);text-decoration:none;}
+footer a:hover{color:var(--text);}
+.footer-version{color:var(--gold-dim);}
 
 /* ── Responsive ── */
-@media (max-width: 1200px) {
-  .layout { grid-template-columns: 180px 1fr; }
-  .sidebar-right { display: none; }
-}
-
-@media (max-width: 768px) {
-  .layout { grid-template-columns: 1fr; }
-  .sidebar-left { display: none; }
-  .content { padding: 16px; }
-  #header { padding: 12px 16px 10px; }
-  .header-title h1 { font-size: 18px; }
-  .heatmap-grid {
-    grid-template-columns: repeat(16, 12px);
-    grid-template-rows: repeat(5, 12px);
-  }
-  .hm-cell { width: 12px; height: 12px; }
-}
+@media(max-width:1200px){.layout{grid-template-columns:180px 1fr}.sidebar-right{display:none}}
+@media(max-width:900px){.pg-container{grid-template-columns:1fr}}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar-left{display:none}.content{padding:16px}#header{padding:12px 16px 10px}.header-title h1{font-size:18px}.heatmap-grid{grid-template-columns:repeat(16,12px);grid-template-rows:repeat(5,12px)}.hm-cell{width:12px;height:12px}}
 </style>
 </head>
 <body>
 
-<!-- ── Header ── -->
 <header id="header">
   <div class="header-top">
     <div class="header-title">
@@ -692,30 +233,18 @@ body {
       <p>De manual tester a automation engineer</p>
     </div>
     <div class="header-stats">
-      <div class="stat">
-        <span class="stat-value" id="stat-days">0</span>
-        <span class="stat-label">Días</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value" id="stat-streak">0</span>
-        <span class="stat-label">Racha</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value" id="stat-pct">0%</span>
-        <span class="stat-label">Progreso</span>
-      </div>
+      <div class="stat"><span class="stat-value" id="stat-days">0</span><span class="stat-label">Días</span></div>
+      <div class="stat"><span class="stat-value" id="stat-streak">0</span><span class="stat-label">Racha</span></div>
+      <div class="stat"><span class="stat-value" id="stat-xp">0</span><span class="stat-label">XP</span></div>
+      <div class="stat"><span class="stat-value" id="stat-pct">0%</span><span class="stat-label">Progreso</span></div>
     </div>
   </div>
   <div class="progress-wrap">
-    <div class="progress-track">
-      <div class="progress-fill" id="progress-fill"></div>
-    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
     <span class="progress-label" id="progress-label">0/80</span>
   </div>
   <div class="heatmap-wrap">
-    <div class="heatmap-day-labels">
-      <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span>
-    </div>
+    <div class="heatmap-day-labels"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span></div>
     <div>
       <div class="heatmap-week-labels" id="heatmap-week-labels"></div>
       <div class="heatmap-grid" id="heatmap"></div>
@@ -723,30 +252,24 @@ body {
   </div>
 </header>
 
-<!-- ── Layout ── -->
 <div class="layout">
-
-  <!-- Sidebar izquierdo -->
   <nav class="sidebar-left">
     <h3>Semanas</h3>
     <div id="week-nav"></div>
   </nav>
-
-  <!-- Contenido principal -->
   <main class="content" id="content"></main>
-
-  <!-- Sidebar derecho — Badges -->
   <aside class="sidebar-right">
     <h3>Logros</h3>
     <div id="badges-list"></div>
   </aside>
-
 </div>
 
-<!-- Tooltip -->
-<div id="tooltip" class="tooltip"></div>
+<footer>
+  <span>QA Journey — De manual tester a automation engineer</span>
+  <span class="footer-version">v1.1.0</span>
+</footer>
 
-<!-- Badge notification -->
+<div id="tooltip" class="tooltip" style="display:none"></div>
 <div id="badge-notify" class="badge-notify">
   <span class="badge-notify-icon" id="badge-notify-icon"></span>
   <div class="badge-notify-text">
@@ -756,651 +279,1039 @@ body {
 </div>
 
 <script>
-// ── Currículo — Solo Semana 1 (el resto se agrega después) ──
+// ════════════════════════════════════════
+//  CURRÍCULO — Semana 1
+// ════════════════════════════════════════
 const CURRICULUM = [
   {
-    week: 1,
-    title: "Variables y tipos de dato",
-    phase: 1,
-    phaseName: "JS Esencial",
-    badge: { icon: "⚔️", name: "JS Apprentice" },
-    days: [
+    week:1, title:"Variables y tipos de dato",
+    phase:1, phaseName:"JS Esencial",
+    badge:{icon:"⚔️",name:"JS Apprentice"},
+    days:[
       {
-        day: 1,
-        title: "¿Qué es una variable? const vs let",
-        theory: [
-          "Una variable es como una caja con etiqueta. Dentro guardas algo —un texto, un número, lo que sea— y la etiqueta es el nombre que tú le das. Cuando necesitas ese valor, usas el nombre.",
-          "En JavaScript hay dos formas de crear variables: <code>const</code> y <code>let</code>. Usa <code>const</code> cuando el valor no va a cambiar (el nombre de la app). Usa <code>let</code> cuando el valor sí puede cambiar (el resultado de un test).",
-          "Regla simple: empieza siempre con <code>const</code>. Si necesitas cambiar el valor, cámbiala a <code>let</code>."
+        day:1, title:"¿Qué es una variable? const vs let",
+        theory:[
+          "Una variable es como una caja con etiqueta. Dentro guardas algo —un texto, un número, lo que sea— y la etiqueta es el nombre que tú le das.",
+          "En JavaScript hay dos formas: <code>const</code> para valores que no cambian, <code>let</code> para valores que sí pueden cambiar.",
+          "Regla de oro: empieza siempre con <code>const</code>. Solo cambia a <code>let</code> si el código lo necesita."
         ],
-        code:
-`const appName = "SauceDemo";
+        code:`const appName = "SauceDemo";
 const urlBase = "https://www.saucedemo.com";
 
 let testResult = "pendiente"; // puede cambiar
-let intentos = 0;             // puede incrementar
+let intentos = 0;
 
 console.log(appName);    // "SauceDemo"
-console.log(testResult); // "pendiente"
-
-testResult = "pasado"; // válido con let
-// appName = "otro";   // Error: const no se puede reasignar`,
-        practice: "Abre <strong>playcode.io</strong> en tu browser. Crea 3 variables con const: tu nombre, tu empresa y tu rol. Luego crea una con let llamada <code>diasEstudiados</code> con valor 0. Cámbiala a 1 y ve qué pasa."
+testResult = "pasado";   // válido con let
+// appName = "otro";     // Error: const no se reasigna`,
+        practice:"Abre <strong>playcode.io</strong>. Crea 3 const: tu nombre, tu empresa y tu rol. Luego una let <code>diasEstudiados = 0</code>. Cámbiala a 1 y observa."
       },
       {
-        day: 2,
-        title: "Tipos: string, number, boolean",
-        theory: [
-          "JavaScript maneja tipos de datos automáticamente. Los tres más comunes son: texto (<strong>string</strong>), número (<strong>number</strong>) y verdadero/falso (<strong>boolean</strong>).",
-          "Un string es cualquier texto entre comillas. Un number es un número entero o decimal. Un boolean solo tiene dos valores: <code>true</code> o <code>false</code>. En QA los booleans aparecen todo el tiempo: ¿pasó el test?",
-          "Para saber qué tipo tiene una variable, usa <code>typeof</code>. Es útil cuando debuggeas y algo no funciona como esperabas."
+        day:2, title:"Tipos: string, number, boolean",
+        theory:[
+          "JavaScript detecta el tipo de dato automáticamente. Los tres más usados: texto (<strong>string</strong>), número (<strong>number</strong>), verdadero/falso (<strong>boolean</strong>).",
+          "Un boolean solo tiene dos valores: <code>true</code> o <code>false</code>. En QA aparecen todo el tiempo: ¿pasó el test? ¿está visible el elemento?",
+          "Usa <code>typeof</code> para ver el tipo de cualquier variable. Muy útil al debuggear."
         ],
-        code:
-`// Strings — texto entre comillas
-const usuario = "standard_user";
-const password = 'secret_sauce';
+        code:`const usuario = "standard_user";  // string
+const totalProductos = 6;          // number
+const loginExitoso = true;         // boolean
 
-// Numbers
-const totalProductos = 6;
-const precio = 29.99;
-
-// Booleans
-const loginExitoso = true;
-const errorVisible = false;
-
-// typeof para ver el tipo
 console.log(typeof usuario);        // "string"
 console.log(typeof totalProductos); // "number"
-console.log(typeof loginExitoso);   // "boolean"`,
-        practice: "En playcode.io, crea una variable de cada tipo. Usa <code>console.log(typeof tuVariable)</code> para cada una. Luego intenta <code>const resultado = 5 + '3'</code>. ¿Qué ves? ¿Por qué es '53' y no 8?"
+console.log(typeof loginExitoso);   // "boolean"
+
+// Curiosidad: ¿qué pasa aquí?
+console.log(5 + "3"); // "53" — no 8`,
+        practice:"Crea una variable de cada tipo. Usa <code>typeof</code> en cada una. Prueba sumar un número y un string. ¿Por qué el resultado es inesperado?"
       },
       {
-        day: 3,
-        title: "Template literals — texto dinámico con ${}",
-        theory: [
-          "Imagina armar un mensaje con el nombre del usuario y el resultado del test concatenando con + —es feo y propenso a errores. Los template literals resuelven eso.",
-          "Usan backticks (`) en lugar de comillas. Dentro metes variables con <code>${nombreVariable}</code> y JavaScript inserta el valor automáticamente.",
-          "En Playwright los verás constantemente para construir mensajes de error, URLs dinámicas y descripciones de tests."
+        day:3, title:"Template literals — texto dinámico con ${}",
+        theory:[
+          "Antes para combinar texto y variables había que usar + entre todo, lo cual era confuso. Los template literals lo resuelven.",
+          "Usan backticks (`) en vez de comillas. Dentro metes variables con <code>${variable}</code> y JavaScript inserta el valor.",
+          "En Playwright los verás constantemente: mensajes de error, URLs dinámicas, descripciones de tests."
         ],
-        code:
-`const usuario = "standard_user";
+        code:`const usuario = "standard_user";
 const resultado = "PASADO";
 const duracion = 1.3;
 
-// Antes (concatenación — difícil de leer)
+// Antes — difícil de leer
 const viejo = "Test de " + usuario + ": " + resultado;
 
-// Ahora (template literal — limpio)
+// Ahora — limpio y legible
 const mensaje = \`Test de \${usuario}: \${resultado} en \${duracion}s\`;
 console.log(mensaje);
 // "Test de standard_user: PASADO en 1.3s"
 
-// También funciona con expresiones
-const total = 6;
-const ok = 4;
-const reporte = \`Progreso: \${ok}/\${total} (\${Math.round(ok/total*100)}%)\`;
-console.log(reporte); // "Progreso: 4/6 (67%)"`,
-        practice: "En playcode.io, crea variables <code>usuario</code>, <code>nombreTest</code> y <code>resultado</code>. Arma un mensaje con template literal: <em>\"El usuario [usuario] ejecutó [nombreTest] con resultado [resultado]\"</em>. Cambia los valores y ve el mensaje cambiar."
+const total = 6, ok = 4;
+const rep = \`Progreso: \${ok}/\${total} (\${Math.round(ok/total*100)}%)\`;`,
+        practice:"Crea variables <code>usuario</code>, <code>nombreTest</code> y <code>resultado</code>. Arma un template literal que diga: <em>El usuario [usuario] ejecutó [nombreTest] con resultado [resultado]</em>."
       },
       {
-        day: 4,
-        title: "Operadores: aritméticos, comparación y lógicos",
-        theory: [
-          "Los operadores son los símbolos para hacer cosas con variables. Los aritméticos (+, -, *, /) hacen matemáticas. Los de comparación (<code>===</code>, <code>!==</code>, <code>&gt;</code>, <code>&lt;</code>) devuelven true o false. Los lógicos (<code>&&</code>, <code>||</code>) combinan condiciones.",
-          "El más importante para QA: <code>===</code> (triple igual). Verifica que dos valores sean iguales Y del mismo tipo. Nunca uses <code>==</code> — JavaScript hace conversiones raras que te van a confundir.",
-          "Con <code>&&</code> (AND) ambas condiciones deben ser true. Con <code>||</code> (OR) basta que una sea true. Piensa: el usuario existe AND la contraseña es correcta."
+        day:4, title:"Operadores: aritméticos, comparación y lógicos",
+        theory:[
+          "<code>===</code> (triple igual) es el operador más importante para QA: verifica que dos valores sean iguales Y del mismo tipo. Nunca uses <code>==</code>.",
+          "Con <code>&&</code> (AND) ambas condiciones deben ser true. Con <code>||</code> (OR) basta que una sea true.",
+          "Piensa en un login: el usuario debe existir AND la contraseña debe ser correcta."
         ],
-        code:
-`// Aritméticos
-const total = 6;
-const ok = 4;
-const pendientes = total - ok; // 2
+        code:`const total = 6, ok = 4;
+const pendientes = total - ok;  // 2
 const pct = (ok / total) * 100; // 66.66
 
-// Comparación — siempre usar ===
 const usuario = "standard_user";
 console.log(usuario === "standard_user"); // true
-console.log(usuario === "admin_user");    // false
-console.log(pendientes !== 0);            // true
+console.log(usuario === "admin");         // false
 
-// Lógicos
-const loginOk = true;
-const tokenValido = true;
-const acceso = loginOk && tokenValido; // true
+const loginOk = true, tokenValido = true;
+const acceso = loginOk && tokenValido;  // true
 
-const esAdmin = false;
-const esTester = true;
+const esAdmin = false, esTester = true;
 const puedeCorrer = esAdmin || esTester; // true`,
-        practice: "En playcode.io, crea <code>usuarioIngresado</code> y <code>passwordIngresado</code>. Compáralos con los valores correctos usando <code>===</code>. Combina las dos comparaciones con <code>&&</code> para saber si el login es exitoso. Imprime el resultado."
+        practice:"Crea <code>usuarioIngresado</code> y <code>passwordIngresado</code>. Compáralos con los valores correctos. Combina con <code>&&</code> para saber si el login es exitoso."
       },
       {
-        day: 5,
-        title: "Práctica integradora: script de reporte de QA",
-        theory: [
-          "Llegó el momento de usar todo junto. El mejor aprendizaje en programación es resolver un problema real, aunque sea pequeño.",
-          "No te preocupes si no sale perfecto a la primera. El ciclo es: escribir → ver el error → buscar qué falló → corregir. Ese ciclo es exactamente como se trabaja en automation.",
-          "Al terminar vas a haber combinado const, let, strings, numbers, booleans, template literals y operadores. Eso es más de lo que la mayoría aprende en su primer día."
+        day:5, title:"Práctica integradora: reporte de QA con variables",
+        theory:[
+          "Llegó el momento de usar todo junto. El mejor aprendizaje en código es resolver un problema real, aunque sea pequeño.",
+          "El ciclo normal es: escribir → ver el error → entender qué falló → corregir. Eso es exactamente como se trabaja en automation.",
+          "Al terminar habrás combinado const, let, strings, numbers, booleans, template literals y operadores. Más de lo que la mayoría aprende en su primer día."
         ],
-        code:
-`// Mini-reporte de QA — Semana 1 completa
-const proyecto = "SauceDemo";
+        code:`const proyecto = "SauceDemo";
 const tester = "David";
-const fecha = "2025-06-14";
-
 const totalCasos = 10;
 let exitosos = 7;
-let fallidos = totalCasos - exitosos; // 3
+let fallidos = totalCasos - exitosos;
 
 const pct = (exitosos / totalCasos) * 100;
-const aprobado = pct >= 70; // true
-
+const aprobado = pct >= 70;
 const estado = aprobado ? "✅ APROBADO" : "❌ FALLIDO";
 
 const reporte = \`
 === REPORTE DE QA ===
 Proyecto : \${proyecto}
 Tester   : \${tester}
-Fecha    : \${fecha}
-
 Total    : \${totalCasos}
 Exitosos : \${exitosos}
 Fallidos : \${fallidos}
 Éxito    : \${pct}%
-
 Estado   : \${estado}
 =====================\`;
 
 console.log(reporte);`,
-        practice: "Copia el código en <strong>playcode.io</strong> y ejecútalo. Luego: cambia <code>exitosos</code> a 5 y ve cómo cambia el estado. Agrega una variable <code>ambiente</code> con valor <em>\"staging\"</em> e inclúyela en el reporte. Agrega también el tiempo de ejecución en segundos."
+        practice:"Copia el código en <strong>playcode.io</strong>. Cambia <code>exitosos</code> a 5 y observa. Agrega variable <code>ambiente = 'staging'</code> e inclúyela en el reporte."
       }
     ]
   }
-  // ── Semanas 2-16 se agregarán aquí ──
+  // Semanas 2-16 se agregan aquí
 ];
 
-// ── Badges de todas las semanas (para el sidebar) ──
+// ════════════════════════════════════════
+//  BADGES
+// ════════════════════════════════════════
 const ALL_BADGES = [
-  { week: 1,  icon: "⚔️",  name: "JS Apprentice" },
-  { week: 2,  icon: "📖",  name: "JS Practitioner" },
-  { week: 3,  icon: "🗂️",  name: "JS Confident" },
-  { week: 4,  icon: "⚡",  name: "JS Ready" },
-  { week: 5,  icon: "🚀",  name: "PW Initiate" },
-  { week: 6,  icon: "🎯",  name: "PW Selector" },
-  { week: 7,  icon: "✅",  name: "PW Tester" },
-  { week: 8,  icon: "🧭",  name: "PW Confident" },
-  { week: 9,  icon: "🏗️",  name: "POM Builder I" },
-  { week: 10, icon: "🔧",  name: "POM Builder II" },
-  { week: 11, icon: "🗃️",  name: "POM Builder III" },
-  { week: 12, icon: "🌐",  name: "POM Builder IV" },
-  { week: 13, icon: "⚙️",  name: "POM Builder V" },
-  { week: 14, icon: "💎",  name: "Portfolio Ready I" },
-  { week: 15, icon: "📝",  name: "Portfolio Ready II" },
-  { week: 16, icon: "🏆",  name: "Portfolio Ready III" }
+  {week:1, icon:"⚔️", name:"JS Apprentice"},
+  {week:2, icon:"📖", name:"JS Practitioner"},
+  {week:3, icon:"🗂️", name:"JS Confident"},
+  {week:4, icon:"⚡", name:"JS Ready"},
+  {week:5, icon:"🚀", name:"PW Initiate"},
+  {week:6, icon:"🎯", name:"PW Selector"},
+  {week:7, icon:"✅", name:"PW Tester"},
+  {week:8, icon:"🧭", name:"PW Confident"},
+  {week:9, icon:"🏗️", name:"POM Builder I"},
+  {week:10,icon:"🔧", name:"POM Builder II"},
+  {week:11,icon:"🗃️", name:"POM Builder III"},
+  {week:12,icon:"🌐", name:"POM Builder IV"},
+  {week:13,icon:"⚙️", name:"POM Builder V"},
+  {week:14,icon:"💎", name:"Portfolio Ready I"},
+  {week:15,icon:"📝", name:"Portfolio Ready II"},
+  {week:16,icon:"🏆", name:"Portfolio Ready III"}
 ];
 
-// ── Estado ──
-const STORAGE_KEY = 'qa-tracker-progress';
-const START_DATE  = new Date('2025-06-10');
-const TOTAL_DAYS  = 80;
+// ════════════════════════════════════════
+//  LOCATOR PLAYGROUND — 8 CHALLENGES
+// ════════════════════════════════════════
+const PG_CHALLENGES = [
+  {
+    id:1, difficulty:1,
+    title:"ID Selector",
+    task:"Selecciona el campo de usuario (username input)",
+    html:`<div style="padding:20px;font-family:Arial">
+  <h3 style="margin-bottom:16px;color:#333">SauceDemo — Login</h3>
+  <input id="user-name" type="text" placeholder="Username" style="display:block;width:100%;margin-bottom:10px;padding:8px 12px;border:1px solid #ccc;border-radius:4px;font-size:14px" />
+  <input id="password" type="password" placeholder="Password" style="display:block;width:100%;margin-bottom:10px;padding:8px 12px;border:1px solid #ccc;border-radius:4px;font-size:14px" />
+  <input id="login-button" type="submit" value="Login" style="width:100%;padding:10px;background:#3ddc91;border:none;border-radius:4px;font-size:14px;cursor:pointer;color:#fff;font-weight:600" />
+</div>`,
+    accepted:["#user-name","[id=\"user-name\"]","input[type=\"text\"]","getByPlaceholder('Username')","getByLabel('Username')","getByPlaceholder(\"Username\")"],
+    best:"getByPlaceholder('Username')",
+    lesson:"Los selectores por ID funcionan, pero se rompen si un developer cambia el ID. <strong>getByPlaceholder</strong> es más resiliente — apunta a lo que el usuario ve, no a un detalle de implementación.",
+    xp:10
+  },
+  {
+    id:2, difficulty:2,
+    title:"Class con múltiples matches",
+    task:"Selecciona SOLO el ítem 'Sauce Labs Bike Light'",
+    html:`<div style="padding:20px;font-family:Arial">
+  <h3 style="margin-bottom:12px;color:#333">Inventario</h3>
+  <ul style="list-style:none;padding:0">
+    <li class="inventory-item" style="padding:10px;border-bottom:1px solid #eee;color:#333">Sauce Labs Backpack — $29.99</li>
+    <li class="inventory-item" style="padding:10px;border-bottom:1px solid #eee;color:#333">Sauce Labs Bike Light — $9.99</li>
+    <li class="inventory-item" style="padding:10px;border-bottom:1px solid #eee;color:#333">Sauce Labs Bolt T-Shirt — $15.99</li>
+    <li class="inventory-item" style="padding:10px;color:#333">Sauce Labs Fleece Jacket — $49.99</li>
+  </ul>
+</div>`,
+    accepted:[".inventory-item:nth-child(2)","li:nth-child(2)","getByText('Sauce Labs Bike Light')","getByText(\"Sauce Labs Bike Light\")"],
+    best:"getByText('Sauce Labs Bike Light')",
+    lesson:"<strong>nth-child</strong> se rompe si se reordena la lista. <strong>getByText</strong> apunta al contenido real — funciona sin importar la posición del elemento.",
+    xp:12
+  },
+  {
+    id:3, difficulty:2,
+    title:"data-test attribute",
+    task:"Selecciona el botón 'Add to cart', NO el de 'Remove'",
+    html:`<div style="padding:20px;font-family:Arial">
+  <h3 style="margin-bottom:12px;color:#333">Sauce Labs Backpack</h3>
+  <p style="color:#666;margin-bottom:16px">$29.99</p>
+  <button class="btn_primary" data-test="add-to-cart-sauce-labs-backpack" style="padding:10px 20px;background:#3ddc91;border:none;border-radius:4px;cursor:pointer;font-size:14px;color:#fff;margin-right:8px">Add to cart</button>
+  <button class="btn_secondary" data-test="remove-sauce-labs-backpack" style="padding:10px 20px;background:#e2e2e2;border:none;border-radius:4px;cursor:pointer;font-size:14px;color:#333">Remove</button>
+</div>`,
+    accepted:["[data-test=\"add-to-cart-sauce-labs-backpack\"]","[data-test='add-to-cart-sauce-labs-backpack']","getByTestId('add-to-cart-sauce-labs-backpack')","getByTestId(\"add-to-cart-sauce-labs-backpack\")","getByRole('button', {name: 'Add to cart'})","getByRole(\"button\", {name: \"Add to cart\"})"],
+    best:"getByTestId('add-to-cart-sauce-labs-backpack')",
+    lesson:"Los atributos <strong>data-test</strong> se agregan específicamente para automation. Nunca cambian por razones de styling. Son la opción más estable cuando están disponibles.",
+    xp:12
+  },
+  {
+    id:4, difficulty:3,
+    title:"getByRole — aria-label",
+    task:"Selecciona el botón del menú hamburguesa",
+    html:`<div style="padding:20px;font-family:Arial">
+  <nav style="display:flex;align-items:center;gap:16px;background:#f8f8f8;padding:12px 16px;border-radius:4px">
+    <a href="#" style="color:#3ddc91;text-decoration:none;font-weight:600">Products</a>
+    <a href="#" style="color:#666;text-decoration:none">Cart (2)</a>
+    <button class="menu-btn" aria-label="Open menu" style="margin-left:auto;background:none;border:1px solid #ccc;border-radius:4px;padding:6px 10px;cursor:pointer;font-size:18px">☰</button>
+  </nav>
+</div>`,
+    accepted:["getByLabel('Open menu')","getByLabel(\"Open menu\")","getByRole('button', {name: 'Open menu'})","getByRole(\"button\", {name: \"Open menu\"})","button[aria-label='Open menu']","button[aria-label=\"Open menu\"]",".menu-btn"],
+    best:"getByRole('button', {name: 'Open menu'})",
+    lesson:"<strong>getByRole</strong> con name usa el nombre accesible del elemento — lo mismo que anunciaría un lector de pantalla. Es el locator más legible y robusto a la vez.",
+    xp:15
+  },
+  {
+    id:5, difficulty:3,
+    title:"Form con labels",
+    task:"Selecciona el campo 'Zip Code'",
+    html:`<div style="padding:20px;font-family:Arial">
+  <h3 style="margin-bottom:16px;color:#333">Información de envío</h3>
+  <form>
+    <label for="first-name" style="display:block;margin-bottom:4px;font-size:13px;color:#555">First Name</label>
+    <input id="first-name" type="text" style="display:block;width:100%;margin-bottom:14px;padding:8px;border:1px solid #ccc;border-radius:4px" />
+    <label for="last-name" style="display:block;margin-bottom:4px;font-size:13px;color:#555">Last Name</label>
+    <input id="last-name" type="text" style="display:block;width:100%;margin-bottom:14px;padding:8px;border:1px solid #ccc;border-radius:4px" />
+    <label for="postal-code" style="display:block;margin-bottom:4px;font-size:13px;color:#555">Zip Code</label>
+    <input id="postal-code" type="text" style="display:block;width:100%;padding:8px;border:1px solid #ccc;border-radius:4px" />
+  </form>
+</div>`,
+    accepted:["#postal-code","getByLabel('Zip Code')","getByLabel(\"Zip Code\")","[id=\"postal-code\"]"],
+    best:"getByLabel('Zip Code')",
+    lesson:"Cuando un campo tiene un <strong>label</strong> visible, <strong>getByLabel</strong> es siempre la mejor opción. Verifica la relación label-input, que además es un requisito de accesibilidad.",
+    xp:15
+  },
+  {
+    id:6, difficulty:4,
+    title:"Dynamic ID — Boss Challenge",
+    task:"Selecciona el botón 'Confirm Order' — ⚠️ el ID cambia en cada carga",
+    html:`<div style="padding:20px;font-family:Arial">
+  <div style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:20px">
+    <h2 style="margin-bottom:8px;color:#333">Confirmar pedido</h2>
+    <p style="color:#666;margin-bottom:20px">Total: $49.98</p>
+    <button id="confirm-btn-a8f3k" class="btn_primary" style="padding:10px 20px;background:#3ddc91;border:none;border-radius:4px;cursor:pointer;font-size:14px;color:#fff;margin-right:8px">Confirm Order</button>
+    <button id="cancel-btn-a8f3k" class="btn_secondary" style="padding:10px 20px;background:#e2e2e2;border:none;border-radius:4px;cursor:pointer;font-size:14px;color:#333">Cancel</button>
+  </div>
+</div>`,
+    accepted:["getByRole('button', {name: 'Confirm Order'})","getByRole(\"button\", {name: \"Confirm Order\"})","getByText('Confirm Order')","getByText(\"Confirm Order\")","button.btn_primary",".btn_primary"],
+    dynamicIdWarning:["#confirm-btn-a8f3k","#cancel-btn-a8f3k"],
+    best:"getByRole('button', {name: 'Confirm Order'})",
+    lesson:"Los IDs dinámicos son la causa #1 de tests flaky. Si un ID tiene caracteres aleatorios, trátalo como si no existiera. Siempre busca una alternativa estable como <strong>getByRole</strong> o <strong>getByText</strong>.",
+    xp:20
+  },
+  {
+    id:7, difficulty:4,
+    title:"Locator encadenado",
+    task:"Selecciona el botón Remove del 'Bike Light' solamente",
+    html:`<div style="padding:20px;font-family:Arial">
+  <section aria-label="Your cart">
+    <h3 style="margin-bottom:14px;color:#333">Tu carrito</h3>
+    <div class="cart-item" style="display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid #eee;border-radius:4px;margin-bottom:8px">
+      <span class="item-name" style="color:#333">Sauce Labs Backpack</span>
+      <button class="remove-btn" style="padding:6px 12px;background:#e2e2e2;border:none;border-radius:4px;cursor:pointer;font-size:13px">Remove</button>
+    </div>
+    <div class="cart-item" style="display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid #eee;border-radius:4px">
+      <span class="item-name" style="color:#333">Sauce Labs Bike Light</span>
+      <button class="remove-btn" style="padding:6px 12px;background:#e2e2e2;border:none;border-radius:4px;cursor:pointer;font-size:13px">Remove</button>
+    </div>
+  </section>
+</div>`,
+    accepted:[".cart-item:nth-child(2) .remove-btn",".cart-item:last-child .remove-btn"],
+    best:".cart-item:last-child .remove-btn",
+    lesson:"Encadenar locators (padre → hijo) es uno de los patrones más potentes de Playwright. Evita el <strong>nth-child</strong> frágil y al mismo tiempo es específico sobre qué elemento quieres.",
+    xp:20
+  },
+  {
+    id:8, difficulty:5,
+    title:"Free Exploration",
+    task:"Encuentra 3 locators DISTINTOS válidos para el botón 'Back to Products'",
+    html:`<div style="padding:20px;font-family:Arial;text-align:center">
+  <div style="font-size:48px;margin-bottom:16px">✅</div>
+  <h2 style="color:#333;margin-bottom:8px">¡Gracias por tu pedido!</h2>
+  <p class="order-id" style="color:#666;margin-bottom:4px">Order #: SLR-20945</p>
+  <p class="dispatch-info" style="color:#888;margin-bottom:20px;font-size:13px">Tu pedido fue despachado</p>
+  <button class="btn_primary" data-test="back-to-products" style="padding:10px 24px;background:#3ddc91;border:none;border-radius:4px;cursor:pointer;font-size:14px;color:#fff">Back to Products</button>
+</div>`,
+    accepted:["[data-test=\"back-to-products\"]","[data-test='back-to-products']","getByTestId('back-to-products')","getByTestId(\"back-to-products\")","getByRole('button', {name: 'Back to Products'})","getByRole(\"button\", {name: \"Back to Products\"})","getByText('Back to Products')","getByText(\"Back to Products\")","button.btn_primary",".btn_primary"],
+    best:"getByTestId('back-to-products')",
+    lesson:"Siempre existen múltiples locators válidos para el mismo elemento. El mejor es el que es <strong>específico</strong>, <strong>legible</strong> y <strong>estable</strong> frente a refactors de código.",
+    xp:25,
+    isFreeExplore:true
+  }
+];
+
+// ════════════════════════════════════════
+//  ESTADO
+// ════════════════════════════════════════
+const STORAGE_KEY    = 'qa-tracker-progress';
+const PG_STORAGE_KEY = 'qa-tracker-locator-progress';
+const START_DATE     = new Date('2025-06-10');
+const TOTAL_DAYS     = 80;
 
 let state = loadState();
+let pgState = loadPgState();
 
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch(e) {}
-  return { completedDays: [], unlockedBadges: [], lastVisited: null };
+function loadState(){
+  try{ const r=localStorage.getItem(STORAGE_KEY); if(r) return JSON.parse(r); }catch(e){}
+  return {completedDays:[], unlockedBadges:[], xp:0};
 }
-
-function saveState() {
-  state.lastVisited = new Date().toISOString().slice(0, 10);
+function saveState(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
+function loadPgState(){
+  try{ const r=localStorage.getItem(PG_STORAGE_KEY); if(r) return JSON.parse(r); }catch(e){}
+  return {completedChallenges:{}, totalXp:0};
+}
+function savePgState(){
+  localStorage.setItem(PG_STORAGE_KEY, JSON.stringify(pgState));
+}
 
-// ── Calcula la fecha de un día del curso (solo días hábiles) ──
-function getDayDate(dayNum) {
-  let count = 0;
-  const d = new Date(START_DATE);
-  while (true) {
-    const dow = d.getDay();
-    if (dow !== 0 && dow !== 6) {
-      count++;
-      if (count === dayNum) break;
-    }
-    d.setDate(d.getDate() + 1);
+// ════════════════════════════════════════
+//  UTILIDADES
+// ════════════════════════════════════════
+function getDayDate(n){
+  let count=0; const d=new Date(START_DATE);
+  while(true){
+    const dw=d.getDay();
+    if(dw!==0&&dw!==6){count++; if(count===n) break;}
+    d.setDate(d.getDate()+1);
   }
   return d;
 }
-
-function formatDate(d) {
-  const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  return `${d.getDate()} ${months[d.getMonth()]}`;
+function formatDate(d){
+  const m=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return `${d.getDate()} ${m[d.getMonth()]}`;
 }
-
-// ── Busca el día del curso que corresponde a hoy ──
-function getTodayDayNum() {
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  for (let i = 1; i <= TOTAL_DAYS; i++) {
-    const d = getDayDate(i);
-    d.setHours(0,0,0,0);
-    if (d.getTime() === today.getTime()) return i;
-    if (d > today) return null;
+function getTodayDayNum(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  for(let i=1;i<=TOTAL_DAYS;i++){
+    const d=getDayDate(i); d.setHours(0,0,0,0);
+    if(d.getTime()===today.getTime()) return i;
+    if(d>today) return null;
   }
   return null;
 }
 
-// ── Syntax highlighting básico ──
-function highlight(raw) {
-  const keywords = ['const','let','var','function','return','async','await',
-    'if','else','for','of','in','new','true','false','null','undefined',
-    'import','export','from','class','extends','this','typeof','try','catch','throw'];
-
-  // Escape HTML
-  let s = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-
-  const placeholders = { s: [], c: [] };
-
-  // Extraer comentarios
-  s = s.replace(/(\/\/[^\n]*)/g, m => {
-    placeholders.c.push(m);
-    return `\x01C${placeholders.c.length - 1}\x01`;
-  });
-
-  // Extraer strings (backtick, double, single)
-  s = s.replace(/(`[^`]*`|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, m => {
-    placeholders.s.push(m);
-    return `\x01S${placeholders.s.length - 1}\x01`;
-  });
-
-  // Keywords
-  const kwRe = new RegExp(`\\b(${keywords.join('|')})\\b`, 'g');
-  s = s.replace(kwRe, '<span class="ck">$1</span>');
-
-  // Números
-  s = s.replace(/\b(\d+\.?\d*)\b/g, '<span class="cn">$1</span>');
-
-  // Funciones (word antes de '(')
-  s = s.replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*(?=\()/g, '<span class="cf">$1</span>');
-
-  // Restaurar strings y comentarios
-  s = s.replace(/\x01S(\d+)\x01/g, (_, i) => `<span class="cs">${placeholders.s[i]}</span>`);
-  s = s.replace(/\x01C(\d+)\x01/g, (_, i) => `<span class="cm">${placeholders.c[i]}</span>`);
-
+function highlight(raw){
+  const kws=['const','let','var','function','return','async','await','if','else',
+    'for','of','in','new','true','false','null','undefined','import','export',
+    'from','class','extends','this','typeof','try','catch','throw'];
+  let s=raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const ps=[],pc=[];
+  s=s.replace(/(\/\/[^\n]*)/g,m=>{pc.push(m);return `\x01C${pc.length-1}\x01`;});
+  s=s.replace(/(`[^`]*`|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g,m=>{ps.push(m);return `\x01S${ps.length-1}\x01`;});
+  s=s.replace(new RegExp(`\\b(${kws.join('|')})\\b`,'g'),'<span class="ck">$1</span>');
+  s=s.replace(/\b(\d+\.?\d*)\b/g,'<span class="cn">$1</span>');
+  s=s.replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*(?=\()/g,'<span class="cf">$1</span>');
+  s=s.replace(/\x01S(\d+)\x01/g,(_,i)=>`<span class="cs">${ps[i]}</span>`);
+  s=s.replace(/\x01C(\d+)\x01/g,(_,i)=>`<span class="cm">${pc[i]}</span>`);
   return s;
 }
 
-// ── Calcular racha ──
-function calcStreak() {
-  if (!state.completedDays.length) return 0;
-  const sorted = [...state.completedDays].sort((a,b) => a - b);
-  const today = new Date(); today.setHours(0,0,0,0);
-  let streak = 0;
-  let check = new Date(today);
-  for (let i = sorted.length - 1; i >= 0; i--) {
-    const d = getDayDate(sorted[i]);
-    d.setHours(0,0,0,0);
-    if (d.getTime() === check.getTime()) {
+function calcStreak(){
+  if(!state.completedDays.length) return 0;
+  const sorted=[...state.completedDays].sort((a,b)=>a-b);
+  const today=new Date(); today.setHours(0,0,0,0);
+  let streak=0, check=new Date(today);
+  for(let i=sorted.length-1;i>=0;i--){
+    const d=getDayDate(sorted[i]); d.setHours(0,0,0,0);
+    if(d.getTime()===check.getTime()){
       streak++;
-      check.setDate(check.getDate() - 1);
-      // saltar fines de semana
-      while (check.getDay() === 0 || check.getDay() === 6) {
-        check.setDate(check.getDate() - 1);
-      }
+      check.setDate(check.getDate()-1);
+      while(check.getDay()===0||check.getDay()===6) check.setDate(check.getDate()-1);
     } else break;
   }
   return streak;
 }
 
-// ── Renderizar heatmap ──
-function renderHeatmap() {
-  const grid = document.getElementById('heatmap');
-  const labels = document.getElementById('heatmap-week-labels');
-  const todayNum = getTodayDayNum();
-  grid.innerHTML = '';
-  labels.innerHTML = '';
-
-  // Labels de semanas
-  for (let w = 1; w <= 16; w++) {
-    const sp = document.createElement('span');
-    sp.textContent = `S${w}`;
-    labels.appendChild(sp);
+// ════════════════════════════════════════
+//  HEATMAP
+// ════════════════════════════════════════
+function renderHeatmap(){
+  const grid=document.getElementById('heatmap');
+  const labels=document.getElementById('heatmap-week-labels');
+  const todayNum=getTodayDayNum();
+  grid.innerHTML=''; labels.innerHTML='';
+  for(let w=1;w<=16;w++){
+    const sp=document.createElement('span'); sp.textContent=`S${w}`; labels.appendChild(sp);
   }
-
-  // 16 semanas × 5 días = 80 celdas
-  // grid-auto-flow: column → se llenan por columnas (semanas)
-  for (let w = 1; w <= 16; w++) {
-    for (let d = 1; d <= 5; d++) {
-      const dayNum = (w - 1) * 5 + d;
-      const cell = document.createElement('div');
-      cell.className = 'hm-cell';
-      cell.dataset.day = dayNum;
-
-      if (state.completedDays.includes(dayNum)) cell.classList.add('done');
-      if (dayNum === todayNum) cell.classList.add('today');
-
-      // Tooltip
-      cell.addEventListener('mouseenter', e => showTooltip(e, dayNum));
-      cell.addEventListener('mouseleave', hideTooltip);
-
-      grid.appendChild(cell);
+  for(let w=1;w<=16;w++){
+    for(let d=1;d<=5;d++){
+      const n=(w-1)*5+d;
+      const c=document.createElement('div');
+      c.className='hm-cell'; c.dataset.day=n;
+      if(state.completedDays.includes(n)) c.classList.add('done');
+      if(n===todayNum) c.classList.add('today');
+      c.addEventListener('mouseenter',e=>showTooltip(e,n));
+      c.addEventListener('mouseleave',hideTooltip);
+      grid.appendChild(c);
     }
   }
 }
 
-// ── Tooltip del heatmap ──
-const tooltip = document.getElementById('tooltip');
-
-function showTooltip(e, dayNum) {
-  // Buscar el título del día
-  let title = `Día ${dayNum}`;
-  for (const w of CURRICULUM) {
-    for (const d of w.days) {
-      if (d.day === dayNum) { title = d.title; break; }
-    }
-  }
-  const week = Math.ceil(dayNum / 5);
-  const dayInWeek = ((dayNum - 1) % 5) + 1;
-  const date = formatDate(getDayDate(dayNum));
-  const done = state.completedDays.includes(dayNum);
-
-  tooltip.textContent = `S${week}·D${dayInWeek} · ${date} · ${title}${done ? ' ✓' : ''}`;
-  tooltip.style.display = 'block';
-  positionTooltip(e);
+const tooltip=document.getElementById('tooltip');
+function showTooltip(e,n){
+  let title=`Día ${n}`;
+  for(const w of CURRICULUM) for(const d of w.days) if(d.day===n){title=d.title;break;}
+  const week=Math.ceil(n/5), diw=((n-1)%5)+1;
+  const date=formatDate(getDayDate(n));
+  const done=state.completedDays.includes(n);
+  tooltip.textContent=`S${week}·D${diw} · ${date} · ${title}${done?' ✓':''}`;
+  tooltip.style.display='block';
+  posTooltip(e);
 }
-
-function positionTooltip(e) {
-  const x = e.clientX + 12;
-  const y = e.clientY - 28;
-  tooltip.style.left = Math.min(x, window.innerWidth - tooltip.offsetWidth - 8) + 'px';
-  tooltip.style.top  = Math.max(y, 8) + 'px';
+function posTooltip(e){
+  tooltip.style.left=Math.min(e.clientX+12,window.innerWidth-tooltip.offsetWidth-8)+'px';
+  tooltip.style.top=Math.max(e.clientY-28,8)+'px';
 }
+document.addEventListener('mousemove',e=>{ if(tooltip.style.display!=='none') posTooltip(e); });
+function hideTooltip(){ tooltip.style.display='none'; }
 
-document.addEventListener('mousemove', e => {
-  if (tooltip.style.display !== 'none') positionTooltip(e);
-});
-
-function hideTooltip() {
-  tooltip.style.display = 'none';
-}
-
-// ── Renderizar navegación lateral ──
-function renderWeekNav() {
-  const nav = document.getElementById('week-nav');
-  nav.innerHTML = '';
-
-  // Siempre mostrar las 16 semanas con datos de ALL_BADGES
-  for (let i = 0; i < 16; i++) {
-    const wNum = i + 1;
-    const wData = CURRICULUM.find(w => w.week === wNum);
-    const badge = ALL_BADGES[i];
-
-    // Calcular % completado de esta semana
-    const startDay = (wNum - 1) * 5 + 1;
-    const daysInWeek = [startDay, startDay+1, startDay+2, startDay+3, startDay+4];
-    const done = daysInWeek.filter(d => state.completedDays.includes(d)).length;
-    const pct = Math.round(done / 5 * 100);
-
-    const item = document.createElement('div');
-    item.className = 'week-nav-item';
-    item.dataset.week = wNum;
-    item.innerHTML = `
-      <div class="wni-left">
-        <span class="wni-num">Semana ${wNum}</span>
-        <span class="wni-title">${wData ? wData.title : badge.name}</span>
-      </div>
-      <span class="wni-pct">${pct}%</span>
-    `;
-
-    if (wData) {
-      item.addEventListener('click', () => {
-        document.getElementById(`week-${wNum}`)?.scrollIntoView({ behavior: 'smooth' });
-      });
+// ════════════════════════════════════════
+//  SIDEBAR NAV
+// ════════════════════════════════════════
+function renderWeekNav(){
+  const nav=document.getElementById('week-nav');
+  nav.innerHTML='';
+  for(let i=0;i<16;i++){
+    const wNum=i+1;
+    const wData=CURRICULUM.find(w=>w.week===wNum);
+    const badge=ALL_BADGES[i];
+    const s=(wNum-1)*5+1;
+    const dwk=[s,s+1,s+2,s+3,s+4];
+    const done=dwk.filter(d=>state.completedDays.includes(d)).length;
+    const pct=Math.round(done/5*100);
+    const item=document.createElement('div');
+    item.className='week-nav-item'; item.dataset.week=wNum;
+    item.innerHTML=`<div class="wni-left"><span class="wni-num">Semana ${wNum}</span><span class="wni-title">${wData?wData.title:badge.name}</span></div><span class="wni-pct">${pct}%</span>`;
+    if(wData){
+      item.addEventListener('click',()=>document.getElementById(`week-${wNum}`)?.scrollIntoView({behavior:'smooth'}));
     } else {
-      item.style.opacity = '0.4';
+      item.style.opacity='0.4'; item.style.cursor='default';
     }
-
     nav.appendChild(item);
   }
+  // Playground nav item
+  const pgItem=document.createElement('div');
+  pgItem.className='nav-playground-item'; pgItem.id='nav-playground';
+  pgItem.innerHTML=`<div class="wni-left"><span class="wni-num">Herramienta</span><span class="wni-title" style="color:var(--teal)">🎮 Playground</span></div>`;
+  pgItem.addEventListener('click',()=>document.getElementById('playground')?.scrollIntoView({behavior:'smooth'}));
+  nav.appendChild(pgItem);
 }
 
-// ── Renderizar contenido ──
-function renderContent() {
-  const content = document.getElementById('content');
-  content.innerHTML = '';
-
-  for (const week of CURRICULUM) {
-    const section = document.createElement('section');
-    section.className = 'week-section';
-    section.id = `week-${week.week}`;
-
-    // Calcular progreso de la semana
-    const startDay = (week.week - 1) * 5 + 1;
-    const weekDays = week.days.map(d => d.day);
-    const doneDays = weekDays.filter(d => state.completedDays.includes(d)).length;
-    const weekPct = Math.round(doneDays / 5 * 100);
-
-    section.innerHTML = `
+// ════════════════════════════════════════
+//  CONTENIDO — WEEK SECTIONS
+// ════════════════════════════════════════
+function renderContent(){
+  const content=document.getElementById('content');
+  content.innerHTML='';
+  for(const week of CURRICULUM){
+    const sec=document.createElement('section');
+    sec.className='week-section'; sec.id=`week-${week.week}`;
+    const s=(week.week-1)*5+1;
+    const wdays=week.days.map(d=>d.day);
+    const done=wdays.filter(d=>state.completedDays.includes(d)).length;
+    const wpct=Math.round(done/5*100);
+    sec.innerHTML=`
       <div class="week-header">
-        <span class="week-number">SEMANA ${week.week.toString().padStart(2,'0')}</span>
+        <span class="week-number">SEMANA ${String(week.week).padStart(2,'0')}</span>
         <h2 class="week-title">${week.title}</h2>
         <span class="week-badge-phase phase-${week.phase}">${week.phaseName}</span>
         <div class="week-progress-mini" style="margin-left:12px">
-          <div class="week-progress-track">
-            <div class="week-progress-fill" style="width:${weekPct}%"></div>
-          </div>
-          <span>${doneDays}/5</span>
+          <div class="week-progress-track"><div class="week-progress-fill" style="width:${wpct}%"></div></div>
+          <span>${done}/5</span>
         </div>
       </div>
-      <div class="week-days" id="week-days-${week.week}"></div>
-    `;
-
-    content.appendChild(section);
-
-    // Renderizar day cards
-    const daysContainer = section.querySelector('.week-days');
-    for (const day of week.days) {
-      daysContainer.appendChild(buildDayCard(day));
-    }
+      <div class="week-days" id="week-days-${week.week}"></div>`;
+    content.appendChild(sec);
+    const dc=sec.querySelector('.week-days');
+    for(const day of week.days) dc.appendChild(buildDayCard(day));
   }
+  // Playground section
+  content.appendChild(buildPlaygroundSection());
 }
 
-// ── Construir una day card ──
-function buildDayCard(day) {
-  const isDone = state.completedDays.includes(day.day);
-  const date = formatDate(getDayDate(day.day));
-  const todayNum = getTodayDayNum();
-  const isToday = day.day === todayNum;
-
-  const card = document.createElement('div');
-  card.className = `day-card${isDone ? ' completed' : ''}`;
-  card.id = `day-card-${day.day}`;
-
-  card.innerHTML = `
+function buildDayCard(day){
+  const isDone=state.completedDays.includes(day.day);
+  const date=formatDate(getDayDate(day.day));
+  const isToday=day.day===getTodayDayNum();
+  const card=document.createElement('div');
+  card.className=`day-card${isDone?' completed':''}`;
+  card.id=`day-card-${day.day}`;
+  card.innerHTML=`
     <div class="day-card-header" data-day="${day.day}">
-      <span class="day-num">Día ${day.day.toString().padStart(2,'0')}</span>
-      <span class="day-date">${date}${isToday ? ' ◀' : ''}</span>
+      <span class="day-num">Día ${String(day.day).padStart(2,'0')}</span>
+      <span class="day-date">${date}${isToday?' ◀':''}</span>
       <span class="day-title">${day.title}</span>
       <span class="day-status">✓</span>
       <span class="day-expand-btn">▼</span>
     </div>
     <div class="day-card-body">
       <div class="section-label">Teoría</div>
-      <div class="theory-text">${day.theory.map(p => `<p>${p}</p>`).join('')}</div>
-
+      <div class="theory-text">${day.theory.map(p=>`<p>${p}</p>`).join('')}</div>
       <div class="section-label">Ejemplo</div>
-      <div class="code-block">
-        <pre>${highlight(day.code)}</pre>
-      </div>
-
+      <div class="code-block"><pre>${highlight(day.code)}</pre></div>
       <div class="section-label">Práctica</div>
       <div class="practice-box">${day.practice}</div>
-
-      <button class="complete-btn" data-day="${day.day}">
-        ${isDone ? '✓ Completado' : '○ Marcar como completado'}
-      </button>
-    </div>
-  `;
-
-  // Toggle expand
-  const header = card.querySelector('.day-card-header');
-  header.addEventListener('click', () => toggleCard(card));
-
-  // Botón completar
-  const btn = card.querySelector('.complete-btn');
-  if (!isDone) {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      markDayDone(day.day, card, btn);
-    });
-  }
-
-  // Si es hoy, abrirlo automáticamente
-  if (isToday && !isDone) {
-    card.classList.add('open');
-  }
-
+      <button class="complete-btn" data-day="${day.day}">${isDone?'✓ Completado':'○ Marcar como completado'}</button>
+    </div>`;
+  card.querySelector('.day-card-header').addEventListener('click',()=>card.classList.toggle('open'));
+  const btn=card.querySelector('.complete-btn');
+  if(!isDone) btn.addEventListener('click',e=>{e.stopPropagation();markDayDone(day.day,card,btn);});
+  if(isToday&&!isDone) card.classList.add('open');
   return card;
 }
 
-function toggleCard(card) {
-  card.classList.toggle('open');
-}
-
-// ── Marcar día como completado ──
-function markDayDone(dayNum, card, btn) {
-  if (state.completedDays.includes(dayNum)) return;
-
+function markDayDone(dayNum,card,btn){
+  if(state.completedDays.includes(dayNum)) return;
   state.completedDays.push(dayNum);
+  state.xp=(state.xp||0)+10;
   saveState();
-
-  // Actualizar card
   card.classList.add('completed');
-  btn.textContent = '✓ Completado';
-  btn.removeEventListener('click', () => {});
-
-  // Animar celda del heatmap
-  const cell = document.querySelector(`.hm-cell[data-day="${dayNum}"]`);
-  if (cell) {
-    cell.classList.add('done', 'pop');
-    cell.addEventListener('animationend', () => cell.classList.remove('pop'), { once: true });
-  }
-
-  // Actualizar stats y barras
+  btn.textContent='✓ Completado';
+  const cell=document.querySelector(`.hm-cell[data-day="${dayNum}"]`);
+  if(cell){cell.classList.add('done','pop');cell.addEventListener('animationend',()=>cell.classList.remove('pop'),{once:true});}
   updateStats();
-  updateWeekProgress(Math.ceil(dayNum / 5));
-
-  // Verificar badge
-  checkBadge(Math.ceil(dayNum / 5));
+  updateWeekProgress(Math.ceil(dayNum/5));
+  checkBadge(Math.ceil(dayNum/5));
+  showXpToast('+10 XP');
 }
 
-// ── Actualizar stats del header ──
-function updateStats() {
-  const done = state.completedDays.length;
-  const pct  = Math.round(done / TOTAL_DAYS * 100);
-
-  document.getElementById('stat-days').textContent  = done;
-  document.getElementById('stat-streak').textContent = calcStreak();
-  document.getElementById('stat-pct').textContent   = pct + '%';
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('progress-label').textContent = `${done}/${TOTAL_DAYS}`;
-
-  // Actualizar sidebar nav
-  document.querySelectorAll('.week-nav-item').forEach(item => {
-    const wNum = parseInt(item.dataset.week);
-    const startDay = (wNum - 1) * 5 + 1;
-    const daysInWeek = [startDay, startDay+1, startDay+2, startDay+3, startDay+4];
-    const doneW = daysInWeek.filter(d => state.completedDays.includes(d)).length;
-    item.querySelector('.wni-pct').textContent = Math.round(doneW / 5 * 100) + '%';
+function updateStats(){
+  const done=state.completedDays.length;
+  const pct=Math.round(done/TOTAL_DAYS*100);
+  const totalXp=(state.xp||0)+(pgState.totalXp||0);
+  document.getElementById('stat-days').textContent=done;
+  document.getElementById('stat-streak').textContent=calcStreak();
+  document.getElementById('stat-xp').textContent=totalXp;
+  document.getElementById('stat-pct').textContent=pct+'%';
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-label').textContent=`${done}/${TOTAL_DAYS}`;
+  document.querySelectorAll('.week-nav-item').forEach(item=>{
+    const wNum=parseInt(item.dataset.week);
+    const s=(wNum-1)*5+1;
+    const dwk=[s,s+1,s+2,s+3,s+4];
+    const d=dwk.filter(n=>state.completedDays.includes(n)).length;
+    const pEl=item.querySelector('.wni-pct');
+    if(pEl) pEl.textContent=Math.round(d/5*100)+'%';
   });
 }
 
-function updateWeekProgress(weekNum) {
-  const startDay = (weekNum - 1) * 5 + 1;
-  const daysInWeek = [startDay, startDay+1, startDay+2, startDay+3, startDay+4];
-  const done = daysInWeek.filter(d => state.completedDays.includes(d)).length;
-  const fill = document.querySelector(`#week-${weekNum} .week-progress-fill`);
-  const label = document.querySelector(`#week-${weekNum} .week-progress-mini span`);
-  if (fill) fill.style.width = Math.round(done / 5 * 100) + '%';
-  if (label) label.textContent = `${done}/5`;
+function updateWeekProgress(weekNum){
+  const s=(weekNum-1)*5+1;
+  const dwk=[s,s+1,s+2,s+3,s+4];
+  const done=dwk.filter(d=>state.completedDays.includes(d)).length;
+  const fill=document.querySelector(`#week-${weekNum} .week-progress-fill`);
+  const lbl=document.querySelector(`#week-${weekNum} .week-progress-mini span`);
+  if(fill) fill.style.width=Math.round(done/5*100)+'%';
+  if(lbl) lbl.textContent=`${done}/5`;
 }
 
-// ── Verificar y mostrar badge ──
-function checkBadge(weekNum) {
-  const startDay = (weekNum - 1) * 5 + 1;
-  const daysInWeek = [startDay, startDay+1, startDay+2, startDay+3, startDay+4];
-  const allDone = daysInWeek.every(d => state.completedDays.includes(d));
-
-  if (!allDone) return;
-
-  const badge = ALL_BADGES[weekNum - 1];
-  if (!badge || state.unlockedBadges.includes(badge.name)) return;
-
+function checkBadge(weekNum){
+  const s=(weekNum-1)*5+1;
+  const dwk=[s,s+1,s+2,s+3,s+4];
+  if(!dwk.every(d=>state.completedDays.includes(d))) return;
+  const badge=ALL_BADGES[weekNum-1];
+  if(!badge||state.unlockedBadges.includes(badge.name)) return;
   state.unlockedBadges.push(badge.name);
   saveState();
-
-  // Mostrar notificación
   showBadgeNotification(badge);
-
-  // Actualizar sidebar de badges
   renderBadgesSidebar();
 }
 
-function showBadgeNotification(badge) {
-  const notify = document.getElementById('badge-notify');
-  document.getElementById('badge-notify-icon').textContent = badge.icon;
-  document.getElementById('badge-notify-name').textContent = badge.name;
-  notify.classList.add('show');
-  setTimeout(() => notify.classList.remove('show'), 3000);
+function showBadgeNotification(badge){
+  const n=document.getElementById('badge-notify');
+  document.getElementById('badge-notify-icon').textContent=badge.icon;
+  document.getElementById('badge-notify-name').textContent=badge.name;
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),3000);
 }
 
-// ── Renderizar badges sidebar ──
-function renderBadgesSidebar() {
-  const list = document.getElementById('badges-list');
-  list.innerHTML = '';
-
-  for (const b of ALL_BADGES) {
-    const unlocked = state.unlockedBadges.includes(b.name);
-    const item = document.createElement('div');
-    item.className = `badge-item${unlocked ? ' unlocked' : ''}`;
-    item.innerHTML = `
-      <span class="badge-icon">${b.icon}</span>
-      <span class="badge-name">${b.name}</span>
-      <span class="badge-week-req">Sem. ${b.week}</span>
-    `;
+function renderBadgesSidebar(){
+  const list=document.getElementById('badges-list');
+  list.innerHTML='';
+  for(const b of ALL_BADGES){
+    const u=state.unlockedBadges.includes(b.name);
+    const item=document.createElement('div');
+    item.className=`badge-item${u?' unlocked':''}`;
+    item.innerHTML=`<span class="badge-icon">${b.icon}</span><span class="badge-name">${b.name}</span><span class="badge-week-req">Sem. ${b.week}</span>`;
     list.appendChild(item);
   }
 }
 
-// ── Scroll spy para sidebar activo ──
-function initScrollSpy() {
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const weekNum = entry.target.id.replace('week-', '');
-        document.querySelectorAll('.week-nav-item').forEach(item => {
-          item.classList.toggle('active', item.dataset.week === weekNum);
-        });
-      }
-    });
-  }, { rootMargin: '-30% 0px -60% 0px' });
-
-  document.querySelectorAll('.week-section').forEach(s => observer.observe(s));
+// ════════════════════════════════════════
+//  XP TOAST
+// ════════════════════════════════════════
+function showXpToast(text){
+  const t=document.createElement('div');
+  t.className='xp-toast'; t.textContent=text;
+  document.body.appendChild(t);
+  setTimeout(()=>t.classList.add('hide'),1500);
+  setTimeout(()=>t.remove(),2200);
 }
 
-// ── Init ──
-function init() {
+// ════════════════════════════════════════
+//  LOCATOR PLAYGROUND
+// ════════════════════════════════════════
+function buildPlaygroundSection(){
+  const sec=document.createElement('section');
+  sec.className='week-section pg-section'; sec.id='playground';
+
+  const pgXp=pgState.totalXp||0;
+  const completed=Object.keys(pgState.completedChallenges||{}).length;
+
+  sec.innerHTML=`
+    <div class="week-header">
+      <span class="week-number">PLAYGROUND</span>
+      <h2 class="week-title">Locator Playground</h2>
+      <span class="week-badge-phase phase-2">Selectores</span>
+    </div>
+    <div class="pg-challenge-bar">
+      <select class="pg-select" id="pg-challenge-select">
+        ${PG_CHALLENGES.map(c=>`<option value="${c.id}"${pgState.completedChallenges?.[c.id]?' ✓':''}>
+          ${'★'.repeat(c.difficulty)}${'☆'.repeat(5-c.difficulty)} Reto ${c.id}: ${c.title}
+        </option>`).join('')}
+      </select>
+      <div class="pg-difficulty" id="pg-difficulty-stars"></div>
+      <div class="pg-xp-total">XP Playground: <span id="pg-xp-display">${pgXp}</span></div>
+    </div>
+    <div id="pg-mount"></div>`;
+
+  return sec;
+}
+
+function initPlayground(){
+  const sel=document.getElementById('pg-challenge-select');
+  if(!sel) return;
+  sel.addEventListener('change',()=>renderChallenge(parseInt(sel.value)));
+  renderChallenge(1);
+}
+
+function renderChallenge(id){
+  const ch=PG_CHALLENGES.find(c=>c.id===id);
+  if(!ch) return;
+
+  const mount=document.getElementById('pg-mount');
+  mount.innerHTML='';
+
+  // Stars
+  const stars=document.getElementById('pg-difficulty-stars');
+  if(stars) stars.innerHTML=[...Array(5)].map((_,i)=>`<span class="pg-star${i<ch.difficulty?' on':''}">${i<ch.difficulty?'★':'☆'}</span>`).join('');
+
+  // State for this challenge
+  let attempts=0;
+  let c8found=[];  // challenge 8: list of valid locators found
+
+  const container=document.createElement('div');
+  container.className='pg-container';
+
+  // ── LEFT: iframe panel ──
+  const left=document.createElement('div');
+  left.className='pg-left';
+  left.innerHTML=`
+    <div class="pg-left-label">Preview HTML</div>
+    <div class="pg-iframe-wrap">
+      <iframe class="pg-iframe" id="pg-iframe-${id}" sandbox="allow-same-origin"></iframe>
+      <span class="pg-match-badge" id="pg-match-badge" style="display:none"></span>
+    </div>`;
+
+  // ── RIGHT: controls ──
+  const right=document.createElement('div');
+  right.className='pg-right';
+  right.innerHTML=`
+    <div class="pg-challenge-desc">
+      <div class="pg-challenge-label">${ch.isFreeExplore?'Exploración libre':'Desafío'}</div>
+      <div class="pg-challenge-text">${ch.task}</div>
+    </div>
+    <div class="pg-input-wrap">
+      ${ch.isFreeExplore ? `
+        <div class="pg-challenge-8-inputs" id="c8-inputs">
+          <input class="pg-locator-input" id="pg-input-c8-0" placeholder="Locator #1..." autocomplete="off" spellcheck="false">
+          <input class="pg-locator-input" id="pg-input-c8-1" placeholder="Locator #2..." autocomplete="off" spellcheck="false" style="display:none">
+          <input class="pg-locator-input" id="pg-input-c8-2" placeholder="Locator #3..." autocomplete="off" spellcheck="false" style="display:none">
+        </div>
+        <div class="pg-c8-counter" id="c8-counter">0/3 locators encontrados</div>
+      ` : `
+        <input class="pg-locator-input" id="pg-input" placeholder="Escribe tu locator aquí..." autocomplete="off" spellcheck="false">
+        <div class="pg-input-hint" id="pg-hint"></div>
+      `}
+    </div>
+    <div class="pg-warning" id="pg-warning">⚠️ ID dinámico detectado — este locator fallará en CI</div>
+    <div class="pg-feedback-row">
+      <span class="pg-attempts" id="pg-attempts">${ch.isFreeExplore?'Encuentra 3 locators distintos':'Intentos: 0'}</span>
+      <button class="pg-clear-btn" id="pg-clear">Limpiar</button>
+      <button class="pg-submit-btn" id="pg-submit">${ch.isFreeExplore?'Verificar':'Comprobar ↵'}</button>
+    </div>
+    <div class="pg-result" id="pg-result"></div>
+    <div class="pg-lesson" id="pg-lesson"></div>`;
+
+  container.appendChild(left);
+  container.appendChild(right);
+  mount.appendChild(container);
+
+  // Load iframe content
+  const iframe=left.querySelector('.pg-iframe');
+  iframe.srcdoc=`<!DOCTYPE html><html><head><style>
+    *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif}
+    .pw-highlight{outline:2px solid #00C49A !important;outline-offset:2px !important;background-color:rgba(0,196,154,0.15) !important;transition:all 0.15s ease;}
+    .pw-highlight-invalid{outline:2px solid #FF5C5C !important;background-color:rgba(255,92,92,0.15) !important;}
+  </style></head><body>${ch.html}</body></html>`;
+
+  // ── VALIDATION ENGINE ──
+  let debounceTimer=null;
+  const badge=left.querySelector('#pg-match-badge');
+  const warning=right.querySelector('#pg-warning');
+
+  function getIframeDoc(){
+    try{ return iframe.contentDocument||iframe.contentWindow?.document; }catch(e){ return null; }
+  }
+
+  function clearHighlights(doc){
+    if(!doc) return;
+    doc.querySelectorAll('.pw-highlight,.pw-highlight-invalid').forEach(el=>{
+      el.classList.remove('pw-highlight','pw-highlight-invalid');
+    });
+  }
+
+  function parseLocator(input, doc){
+    if(!doc||!input.trim()) return {valid:false,count:0,elements:[],error:''};
+    input=input.trim();
+
+    try{
+      // ── Playwright-style patterns ──
+      if(/^getByPlaceholder\s*\(/.test(input)){
+        const m=input.match(/getByPlaceholder\s*\(\s*['"`](.+?)['"`]\s*\)/);
+        if(!m) return {valid:false,count:0,elements:[],error:'Sintaxis inválida'};
+        const els=Array.from(doc.querySelectorAll(`[placeholder="${m[1]}"]`));
+        return {valid:true,count:els.length,elements:els};
+      }
+      if(/^getByTestId\s*\(/.test(input)){
+        const m=input.match(/getByTestId\s*\(\s*['"`](.+?)['"`]\s*\)/);
+        if(!m) return {valid:false,count:0,elements:[],error:'Sintaxis inválida'};
+        const els=Array.from(doc.querySelectorAll(`[data-test="${m[1]}"]`));
+        return {valid:true,count:els.length,elements:els};
+      }
+      if(/^getByLabel\s*\(/.test(input)){
+        const m=input.match(/getByLabel\s*\(\s*['"`](.+?)['"`]\s*\)/);
+        if(!m) return {valid:false,count:0,elements:[],error:'Sintaxis inválida'};
+        const labels=Array.from(doc.querySelectorAll('label'));
+        const lbl=labels.find(l=>l.textContent.trim().toLowerCase()===m[1].toLowerCase());
+        if(!lbl) return {valid:true,count:0,elements:[]};
+        const forId=lbl.getAttribute('for');
+        const el=forId?doc.getElementById(forId):null;
+        const els=el?[el]:[];
+        return {valid:true,count:els.length,elements:els};
+      }
+      if(/^getByText\s*\(/.test(input)){
+        const m=input.match(/getByText\s*\(\s*['"`](.+?)['"`]\s*\)/);
+        if(!m) return {valid:false,count:0,elements:[],error:'Sintaxis inválida'};
+        const all=Array.from(doc.querySelectorAll('*'));
+        const els=all.filter(el=>el.children.length===0&&el.textContent.trim().toLowerCase().includes(m[1].toLowerCase()));
+        return {valid:true,count:els.length,elements:els};
+      }
+      if(/^getByRole\s*\(/.test(input)){
+        const mSimple=input.match(/getByRole\s*\(\s*['"`](\w+)['"`]\s*\)/);
+        const mNamed=input.match(/getByRole\s*\(\s*['"`](\w+)['"`]\s*,\s*\{.*?name\s*:\s*['"`](.+?)['"`].*?\}\s*\)/);
+        if(mNamed){
+          const role=mNamed[1], name=mNamed[2].toLowerCase();
+          const candidates=Array.from(doc.querySelectorAll(`[role="${role}"], ${role==='button'?'button':''}${role==='link'?'a':''}`));
+          const filtered=candidates.filter(el=>{
+            const aria=el.getAttribute('aria-label')||'';
+            const text=el.textContent.trim();
+            const title=el.getAttribute('title')||'';
+            return aria.toLowerCase().includes(name)||text.toLowerCase().includes(name)||title.toLowerCase().includes(name);
+          });
+          return {valid:true,count:filtered.length,elements:filtered};
+        }
+        if(mSimple){
+          const role=mSimple[1];
+          const map={button:'button',link:'a',heading:'h1,h2,h3,h4,h5,h6',textbox:'input[type="text"],input:not([type]),textarea',checkbox:'input[type="checkbox"]',radio:'input[type="radio"]'};
+          const sel=map[role]||`[role="${role}"]`;
+          const els=Array.from(doc.querySelectorAll(sel));
+          return {valid:true,count:els.length,elements:els};
+        }
+        return {valid:false,count:0,elements:[],error:'Sintaxis inválida'};
+      }
+      // Chained: .cart-item:last-child .remove-btn style
+      // Default: treat as CSS selector
+      const els=Array.from(doc.querySelectorAll(input));
+      return {valid:true,count:els.length,elements:els};
+    }catch(e){
+      return {valid:false,count:0,elements:[],error:e.message};
+    }
+  }
+
+  function hasDynamicId(input){
+    return /[#\[][^#\[]*-[a-z0-9]{5,}[^\w]?['"\]]?$/.test(input)||
+           /id=['"][^'"]*-[a-z0-9]{5,}['"]/.test(input);
+  }
+
+  function updateMatchBadge(result, input){
+    if(!input.trim()){badge.style.display='none';return;}
+    badge.style.display='block';
+    if(!result.valid){
+      badge.className='pg-match-badge pg-match-zero';
+      badge.textContent='Error de sintaxis';
+    } else if(result.count===0){
+      badge.className='pg-match-badge pg-match-zero';
+      badge.textContent='0 matches';
+    } else if(result.count===1){
+      badge.className='pg-match-badge pg-match-one';
+      badge.textContent='1 match ✓';
+    } else {
+      badge.className='pg-match-badge pg-match-many';
+      badge.textContent=`${result.count} matches`;
+    }
+  }
+
+  function runValidation(inputVal){
+    const doc=getIframeDoc();
+    if(!doc) return null;
+    clearHighlights(doc);
+    if(!inputVal.trim()){badge.style.display='none';warning.classList.remove('show');return null;}
+    const result=parseLocator(inputVal,doc);
+    result.elements.forEach(el=>el.classList.add(result.count>0?'pw-highlight':'pw-highlight-invalid'));
+    updateMatchBadge(result,inputVal);
+    // Dynamic ID warning
+    if(ch.id===6&&hasDynamicId(inputVal)){
+      warning.classList.add('show');
+    } else {
+      warning.classList.remove('show');
+    }
+    return result;
+  }
+
+  // ── Input events (normal challenges) ──
+  if(!ch.isFreeExplore){
+    const input=right.querySelector('#pg-input');
+    const hint=right.querySelector('#pg-hint');
+    const attEl=right.querySelector('#pg-attempts');
+    const submitBtn=right.querySelector('#pg-submit');
+    const clearBtn=right.querySelector('#pg-clear');
+    const resultEl=right.querySelector('#pg-result');
+    const lessonEl=right.querySelector('#pg-lesson');
+
+    input.addEventListener('input',()=>{
+      clearTimeout(debounceTimer);
+      debounceTimer=setTimeout(()=>{
+        const r=runValidation(input.value);
+        if(r){
+          hint.textContent=r.valid?`${r.count} elemento${r.count!==1?'s':''} encontrado${r.count!==1?'s':''}`:r.error||'';
+          input.className=`pg-locator-input${!r.valid?' invalid':r.count>0?' valid':''}`;
+        } else {
+          hint.textContent='';
+          input.className='pg-locator-input';
+        }
+      },150);
+    });
+
+    input.addEventListener('keydown',e=>{if(e.key==='Enter') submitBtn.click();});
+
+    clearBtn.addEventListener('click',()=>{
+      input.value=''; input.className='pg-locator-input';
+      hint.textContent=''; warning.classList.remove('show');
+      resultEl.className='pg-result'; resultEl.innerHTML='';
+      const doc=getIframeDoc(); if(doc) clearHighlights(doc);
+      badge.style.display='none';
+    });
+
+    submitBtn.addEventListener('click',()=>{
+      const val=input.value.trim();
+      if(!val) return;
+      const doc=getIframeDoc(); if(!doc) return;
+
+      const result=parseLocator(val,doc);
+      const isAccepted=ch.accepted.some(a=>val===a||val.replace(/\s+/g,' ')===a.replace(/\s+/g,' '));
+      const isDynWarn=ch.id===6&&hasDynamicId(val)&&!isAccepted;
+
+      if(isDynWarn){
+        resultEl.className='pg-result hint show';
+        resultEl.innerHTML='⚠️ Ese ID cambia en cada carga — fallará en CI. Intenta con un locator basado en el texto o el rol.';
+        attempts++;
+        attEl.textContent=`Intentos: ${attempts}`;
+        if(attempts>=2) showLesson(lessonEl,ch);
+        return;
+      }
+
+      if(isAccepted&&result.count>0){
+        // Correct!
+        const isBest=val===ch.best||val.replace(/\s+/g,' ')===ch.best.replace(/\s+/g,' ');
+        let xpEarned=attempts===0?20:attempts===1?12:6;
+        if(isBest) xpEarned+=5;
+
+        resultEl.className='pg-result correct show';
+        resultEl.innerHTML=`✓ ¡Correcto! +${xpEarned} XP${isBest?' <strong style="color:var(--gold)">★ Mejor locator</strong>':''}`;
+        showLesson(lessonEl,ch);
+        awardPgXp(ch.id,xpEarned);
+        input.className='pg-locator-input valid';
+
+      } else {
+        attempts++;
+        attEl.textContent=`Intentos: ${attempts}`;
+        const msg=result.count===0?'No encontró ningún elemento.'
+          :result.count>1?`Encontró ${result.count} elementos — necesitas ser más específico.`
+          :'Ese locator no está en la lista de respuestas válidas.';
+        resultEl.className='pg-result wrong show';
+        resultEl.innerHTML=`✗ ${msg}`;
+        if(attempts>=2) showLesson(lessonEl,ch);
+      }
+    });
+
+  } else {
+    // ── Challenge 8: Free explore ──
+    const inputs=right.querySelectorAll('.pg-locator-input');
+    const counterEl=right.querySelector('#c8-counter');
+    const submitBtn=right.querySelector('#pg-submit');
+    const clearBtn=right.querySelector('#pg-clear');
+    const resultEl=right.querySelector('#pg-result');
+    const lessonEl=right.querySelector('#pg-lesson');
+
+    inputs.forEach((inp,idx)=>{
+      inp.addEventListener('input',()=>{
+        clearTimeout(debounceTimer);
+        debounceTimer=setTimeout(()=>runValidation(inp.value),150);
+      });
+    });
+
+    submitBtn.addEventListener('click',()=>{
+      const vals=[...inputs].map(i=>i.value.trim()).filter(v=>v);
+      const doc=getIframeDoc(); if(!doc) return;
+      let newFound=0;
+      const allFound=[...c8found];
+      vals.forEach(v=>{
+        const accepted=ch.accepted.some(a=>v===a||v.replace(/\s+/g,' ')===a.replace(/\s+/g,' '));
+        if(accepted&&!allFound.includes(v)){allFound.push(v);newFound++;}
+      });
+      c8found=allFound;
+      counterEl.textContent=`${c8found.length}/3 locators encontrados`;
+
+      // Show next input slot
+      if(c8found.length>=1) inputs[1].style.display='block';
+      if(c8found.length>=2) inputs[2].style.display='block';
+
+      if(c8found.length>=3){
+        resultEl.className='pg-result correct show';
+        resultEl.innerHTML=`🎉 ¡Encontraste 3 locators válidos! <strong>+${ch.xp} XP</strong>`;
+        showLesson(lessonEl,ch);
+        awardPgXp(ch.id,ch.xp);
+        // show all valid options
+        lessonEl.innerHTML+=`<div style="margin-top:12px"><strong>Todos los locators válidos:</strong><br><code style="font-family:var(--font-mono);font-size:11px;color:var(--teal)">${ch.accepted.join('<br>')}</code></div>`;
+      } else if(vals.length>0){
+        const ok=vals.filter(v=>ch.accepted.some(a=>v===a)).length;
+        resultEl.className='pg-result hint show';
+        resultEl.innerHTML=`${ok} válido${ok!==1?'s':''} de ${vals.length} ingresado${vals.length!==1?'s':''}. Necesitas ${3-c8found.length} más.`;
+      }
+    });
+
+    clearBtn.addEventListener('click',()=>{
+      inputs.forEach(i=>{i.value='';i.className='pg-locator-input';});
+      inputs[1].style.display='none'; inputs[2].style.display='none';
+      c8found=[]; counterEl.textContent='0/3 locators encontrados';
+      resultEl.className='pg-result'; resultEl.innerHTML='';
+      const doc=getIframeDoc(); if(doc) clearHighlights(doc);
+      badge.style.display='none';
+    });
+  }
+
+  // Challenge select sync
+  const sel=document.getElementById('pg-challenge-select');
+  if(sel) sel.value=id;
+}
+
+function showLesson(el, ch){
+  el.className='pg-lesson show';
+  el.innerHTML=`${ch.lesson}<div class="pg-best">★ Mejor locator: <span>${ch.best}</span></div>`;
+}
+
+function awardPgXp(challengeId, xp){
+  if(pgState.completedChallenges?.[challengeId]) return;
+  pgState.completedChallenges=pgState.completedChallenges||{};
+  pgState.completedChallenges[challengeId]=xp;
+  pgState.totalXp=(pgState.totalXp||0)+xp;
+  savePgState();
+  const disp=document.getElementById('pg-xp-display');
+  if(disp) disp.textContent=pgState.totalXp;
+  showXpToast(`+${xp} XP`);
+  updateStats();
+  // Update option label
+  const sel=document.getElementById('pg-challenge-select');
+  if(sel){
+    const opt=[...sel.options].find(o=>parseInt(o.value)===challengeId);
+    if(opt&&!opt.text.includes('✓')) opt.text=opt.text+' ✓';
+  }
+}
+
+// ════════════════════════════════════════
+//  SCROLL SPY
+// ════════════════════════════════════════
+function initScrollSpy(){
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(!entry.isIntersecting) return;
+      const id=entry.target.id;
+      if(id==='playground'){
+        document.querySelectorAll('.week-nav-item').forEach(i=>i.classList.remove('active'));
+        document.getElementById('nav-playground')?.classList.add('active');
+      } else {
+        const wNum=id.replace('week-','');
+        document.getElementById('nav-playground')?.classList.remove('active');
+        document.querySelectorAll('.week-nav-item').forEach(i=>
+          i.classList.toggle('active',i.dataset.week===wNum));
+      }
+    });
+  },{rootMargin:'-30% 0px -60% 0px'});
+  document.querySelectorAll('.week-section').forEach(s=>observer.observe(s));
+}
+
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
+function init(){
   renderHeatmap();
   renderWeekNav();
   renderContent();
   renderBadgesSidebar();
   updateStats();
   initScrollSpy();
-
-  // Si hay días completados, actualizar progress de semanas
-  const weeks = [...new Set(state.completedDays.map(d => Math.ceil(d / 5)))];
-  weeks.forEach(w => updateWeekProgress(w));
+  // Restore week progress bars
+  [...new Set(state.completedDays.map(d=>Math.ceil(d/5)))].forEach(w=>updateWeekProgress(w));
+  // Init playground after DOM is ready
+  setTimeout(initPlayground, 100);
 }
 
 init();
