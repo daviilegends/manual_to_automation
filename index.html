@@ -427,7 +427,7 @@ const viejo = "Test de " + usuario + ": " + resultado + " (" + duracion + "s)";
 const nuevo = \`Test de \${usuario}: \${resultado} (\${duracion}s)\`;
 console.log(nuevo);
 
-// Expresiones dentro de ${}
+// Expresiones dentro de \${}
 const pct = Math.round(ok / total * 100);
 const resumen = \`Aprobación: \${pct}% — \${pct >= 70 ? '✅ OK' : '❌ REVISAR'}\`;
 console.log(resumen); // "Aprobación: 70% — ✅ OK"
@@ -599,7 +599,7 @@ console.log(reporte);`,
         ]
       }
     ]
-  }
+  },
   // ── Semana 2 ──
   {
     week:2, title:"Funciones",
