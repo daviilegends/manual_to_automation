@@ -403,7 +403,526 @@ console.log(reporte);`,
       }
     ]
   }
-  // Semanas 2-16 se agregan aquí
+  // ── Semana 2 ──
+  {
+    week:2, title:"Funciones",
+    phase:1, phaseName:"JS Esencial",
+    badge:{icon:"📖",name:"JS Practitioner"},
+    days:[
+      {
+        day:6, title:"¿Qué es una función? Analogía: la receta reutilizable",
+        theory:[
+          "Una función es como una receta de cocina: la escribes una vez y la puedes usar todas las veces que quieras. Sin funciones, tendrías que copiar y pegar el mismo código en cada test — y cuando algo cambie, tendrías que cambiarlo en 50 lugares.",
+          "En JavaScript defines una función con la palabra <code>function</code>, le pones un nombre descriptivo, y entre llaves escribes lo que hace. Luego la llamas escribiendo su nombre seguido de paréntesis.",
+          "En automation testing las funciones son la base de todo: cada acción (hacer click, llenar un campo, verificar un texto) vive en su propia función."
+        ],
+        code:`// Definir una función
+function saludar() {
+  console.log("Iniciando test de SauceDemo...");
+}
+
+// Llamar a la función (ejecutarla)
+saludar(); // "Iniciando test de SauceDemo..."
+saludar(); // se puede llamar múltiples veces
+
+// Función que hace algo más útil
+function limpiarResultados() {
+  console.log("Limpiando resultados anteriores...");
+  console.log("Tests listos para ejecutar.");
+}
+
+limpiarResultados();`,
+        practice:"En <strong>playcode.io</strong>, crea una función llamada <code>iniciarTest</code> que imprima 3 mensajes: el nombre de la app que vas a testear, el ambiente (staging/prod) y la fecha de hoy. Llámala 2 veces y observa que los mensajes se repiten."
+      },
+      {
+        day:7, title:"Parámetros y return — entrada y salida de funciones",
+        theory:[
+          "Una función sin parámetros siempre hace lo mismo. Con parámetros, le puedes pasar información para que trabaje con datos diferentes cada vez. Es como una cafetera: la función es 'hacer café', el parámetro es 'cuántos azúcares'.",
+          "<code>return</code> es lo que devuelve la función como resultado. Si no tiene <code>return</code>, devuelve <code>undefined</code>. En tests, las funciones casi siempre devuelven algo: un mensaje, un boolean, un objeto.",
+          "La diferencia clave: <code>console.log</code> solo muestra en pantalla. <code>return</code> devuelve el valor para que otro código lo use."
+        ],
+        code:`// Función con parámetros y return
+function calcularPorcentaje(exitosos, total) {
+  const pct = (exitosos / total) * 100;
+  return Math.round(pct);
+}
+
+// Usar el valor retornado
+const resultado = calcularPorcentaje(7, 10);
+console.log(resultado); // 70
+
+// Múltiples parámetros
+function armarMensaje(usuario, accion, resultado) {
+  return \`Usuario \${usuario} intentó \${accion}: \${resultado}\`;
+}
+
+const msg = armarMensaje("standard_user", "login", "exitoso");
+console.log(msg);
+// "Usuario standard_user intentó login: exitoso"`,
+        practice:"Crea una función <code>verificarLogin(usuario, password)</code> que reciba dos parámetros y retorne <code>true</code> si usuario es <em>'standard_user'</em> y password es <em>'secret_sauce'</em>, o <code>false</code> si no. Pruébala con valores correctos e incorrectos."
+      },
+      {
+        day:8, title:"Arrow functions — la sintaxis que verás en todo Playwright",
+        theory:[
+          "Las arrow functions son una forma más corta de escribir funciones. En lugar de <code>function nombre() {}</code>, escribes <code>const nombre = () => {}</code>. En Playwright las verás en absolutamente todos los tests.",
+          "Si el cuerpo de la función es una sola expresión, puedes omitir las llaves y el <code>return</code> — la expresión se retorna automáticamente. Esto hace el código muy compacto.",
+          "Una diferencia importante: las arrow functions no tienen su propio <code>this</code>. Por ahora no te preocupes por eso — solo necesitas reconocerlas y poder escribirlas."
+        ],
+        code:`// Función tradicional
+function sumar(a, b) {
+  return a + b;
+}
+
+// Arrow function equivalente
+const sumarArrow = (a, b) => {
+  return a + b;
+};
+
+// Arrow function compacta (una línea — return implícito)
+const sumarCorta = (a, b) => a + b;
+
+console.log(sumarCorta(3, 4)); // 7
+
+// Como las verás en Playwright:
+const productos = ["Backpack", "Bike Light", "T-Shirt"];
+
+const enMayusculas = productos.map(p => p.toUpperCase());
+console.log(enMayusculas);
+// ["BACKPACK", "BIKE LIGHT", "T-SHIRT"]`,
+        practice:"Reescribe la función <code>calcularPorcentaje</code> del día anterior como arrow function. Primero la versión larga (con llaves y return), luego la compacta (sin llaves). Ambas deben dar el mismo resultado."
+      },
+      {
+        day:9, title:"Scope — dónde 'vive' una variable",
+        theory:[
+          "El scope (ámbito) define desde dónde puedes acceder a una variable. Una variable definida dentro de una función solo existe dentro de esa función — no la puedes usar afuera. Esto es scope local.",
+          "Las variables definidas fuera de cualquier función son globales y se pueden usar desde cualquier lugar. Sin embargo, abusar de variables globales es una mala práctica en automation — hace los tests interdependientes.",
+          "En Playwright esto importa mucho: si defines una variable dentro de un <code>test()</code>, no puedes accederla desde otro test. Cada test debe ser independiente y autónomo."
+        ],
+        code:`const appUrl = "https://www.saucedemo.com"; // global
+
+function testLogin() {
+  const usuario = "standard_user"; // local — solo existe aquí
+  const password = "secret_sauce"; // local
+  console.log(\`Testeando login en \${appUrl}\`); // puede usar global
+  console.log(\`Con usuario: \${usuario}\`);
+}
+
+function testInventario() {
+  console.log(\`Verificando inventario en \${appUrl}\`); // puede usar global
+  // console.log(usuario); // Error: usuario no existe aquí
+}
+
+testLogin();
+testInventario();
+
+// Esto es por qué cada test debe declarar sus propios datos:
+// Sin scope, los tests se "contaminarían" entre sí`,
+        practice:"Crea dos funciones: <code>testLogin</code> y <code>testCarrito</code>. Define variables locales en cada una. Intenta usar la variable de una función dentro de la otra. Observa el error en la consola. ¿Qué dice?"
+      },
+      {
+        day:10, title:"Práctica: función login() que simula autenticación",
+        theory:[
+          "Hoy integras todo lo de la semana: declarar funciones, usar parámetros, retornar resultados y entender el scope. Vas a construir una función que simula el flujo de login de SauceDemo.",
+          "Este tipo de función es exactamente lo que crearás más adelante en una Page Object de Playwright. La diferencia será que en vez de <code>console.log</code>, usarás <code>page.fill()</code> y <code>page.click()</code>.",
+          "Presta atención a cómo las funciones pequeñas se combinan para hacer algo más grande — eso es la esencia del diseño de código limpio."
+        ],
+        code:`// Función auxiliar — valida credenciales
+const USUARIOS_VALIDOS = {
+  "standard_user": "secret_sauce",
+  "problem_user": "secret_sauce",
+  "locked_out_user": "secret_sauce"
+};
+
+function validarCredenciales(usuario, password) {
+  return USUARIOS_VALIDOS[usuario] === password;
+}
+
+// Función principal de login
+function login(usuario, password) {
+  console.log(\`→ Intentando login con: \${usuario}\`);
+
+  if (usuario === "locked_out_user") {
+    return { exito: false, mensaje: "Usuario bloqueado" };
+  }
+
+  const credencialesOk = validarCredenciales(usuario, password);
+
+  if (credencialesOk) {
+    return { exito: true, mensaje: "Login exitoso — redirigiendo al inventario" };
+  } else {
+    return { exito: false, mensaje: "Usuario o contraseña incorrectos" };
+  }
+}
+
+// Probar diferentes escenarios
+console.log(login("standard_user", "secret_sauce"));
+console.log(login("standard_user", "wrong_pass"));
+console.log(login("locked_out_user", "secret_sauce"));`,
+        practice:"Copia el código y ejecútalo en <strong>playcode.io</strong>. Luego agrega un cuarto tipo de usuario: <em>'performance_glitch_user'</em>. Este usuario puede loguearse pero la función debe agregar al resultado: <code>advertencia: 'Carga lenta esperada'</code>."
+      }
+    ]
+  },
+
+  // ── Semana 3 ──
+  {
+    week:3, title:"Arrays y objetos",
+    phase:1, phaseName:"JS Esencial",
+    badge:{icon:"🗂️",name:"JS Confident"},
+    days:[
+      {
+        day:11, title:"Arrays — listas de datos",
+        theory:[
+          "Un array es una lista ordenada de valores. Piensa en él como una columna de Excel: cada celda tiene un valor y una posición (índice). El primer ítem está en el índice 0, no en el 1 — eso confunde a casi todos al principio.",
+          "Los arrays son fundamentales en QA: una lista de usuarios de prueba, los productos en el carrito, los mensajes de error a verificar — todo eso es un array.",
+          "Para acceder a un elemento usas <code>array[indice]</code>. Para saber cuántos elementos tiene usas <code>array.length</code>."
+        ],
+        code:`// Crear un array
+const productos = ["Backpack", "Bike Light", "T-Shirt", "Fleece Jacket"];
+
+// Acceder por índice (empieza en 0)
+console.log(productos[0]); // "Backpack"
+console.log(productos[1]); // "Bike Light"
+console.log(productos[3]); // "Fleece Jacket"
+
+// Longitud del array
+console.log(productos.length); // 4
+
+// Último elemento (sin saber el índice)
+console.log(productos[productos.length - 1]); // "Fleece Jacket"
+
+// Agregar y quitar
+productos.push("Onesie");       // agrega al final
+const ultimo = productos.pop(); // quita y retorna el último
+console.log(ultimo);            // "Onesie"`,
+        practice:"Crea un array <code>usuariosDePrueba</code> con los 5 usuarios de SauceDemo. Imprime el primero, el último y el total. Luego agrega un usuario inventado con <code>push()</code> y vuelve a imprimir el total."
+      },
+      {
+        day:12, title:"map, filter, find — los métodos esenciales",
+        theory:[
+          "<code>filter</code> crea un nuevo array con solo los elementos que cumplen una condición. <code>map</code> transforma cada elemento y devuelve un nuevo array del mismo tamaño. <code>find</code> devuelve el primer elemento que cumple la condición (no un array, el elemento directo).",
+          "Estos tres métodos reciben una arrow function como argumento. Eso es lo que se llama 'función de orden superior' — no te asustes, es solo una función que recibe otra función como parámetro.",
+          "En Playwright los usarás para filtrar resultados, transformar datos de tests y encontrar elementos específicos en listas de resultados."
+        ],
+        code:`const productos = [
+  { nombre: "Backpack",      precio: 29.99 },
+  { nombre: "Bike Light",    precio: 9.99  },
+  { nombre: "T-Shirt",       precio: 15.99 },
+  { nombre: "Fleece Jacket", precio: 49.99 },
+  { nombre: "Onesie",        precio: 7.99  }
+];
+
+// filter — solo los baratos (< $15)
+const baratos = productos.filter(p => p.precio < 15);
+console.log(baratos.length); // 2
+
+// map — solo los nombres
+const nombres = productos.map(p => p.nombre);
+console.log(nombres); // ["Backpack", "Bike Light", ...]
+
+// find — el primero que cumpla la condición
+const caro = productos.find(p => p.precio > 40);
+console.log(caro.nombre); // "Fleece Jacket"`,
+        practice:"Agrega al array de productos un campo <code>enStock: true/false</code>. Usa <code>filter</code> para obtener solo los que están en stock. Usa <code>map</code> para crear un array con solo los nombres de los productos en stock."
+      },
+      {
+        day:13, title:"Objetos — pares clave/valor",
+        theory:[
+          "Un objeto es como un formulario: tiene campos (claves) y cada campo tiene un valor. En JavaScript los defines con llaves <code>{}</code>. A diferencia del array, accedes a los valores por nombre, no por posición.",
+          "Los objetos son perfectos para representar entidades del mundo real: un usuario de prueba, una configuración de test, un producto del inventario. Todo en Playwright maneja objetos constantemente.",
+          "Puedes acceder a las propiedades con punto (<code>obj.propiedad</code>) o con corchetes (<code>obj['propiedad']</code>). El punto es más limpio; los corchetes son útiles cuando el nombre de la propiedad viene de una variable."
+        ],
+        code:`// Objeto usuario de prueba
+const usuario = {
+  nombre: "standard_user",
+  password: "secret_sauce",
+  rol: "comprador",
+  activo: true
+};
+
+// Acceder con punto
+console.log(usuario.nombre);   // "standard_user"
+console.log(usuario.activo);   // true
+
+// Acceder con corchetes
+const campo = "password";
+console.log(usuario[campo]);   // "secret_sauce"
+
+// Modificar propiedades
+usuario.rol = "admin";
+console.log(usuario.rol);      // "admin"
+
+// Agregar propiedades nuevas
+usuario.ultimoLogin = "2025-06-10";
+console.log(Object.keys(usuario)); // todas las claves`,
+        practice:"Crea un objeto <code>configTest</code> con: <code>ambiente</code> ('staging'), <code>browser</code> ('chromium'), <code>headless</code> (false), <code>timeout</code> (30000). Imprime cada propiedad. Luego cambia el ambiente a 'produccion' y el headless a true."
+      },
+      {
+        day:14, title:"Arrays de objetos — la estructura más común en tests",
+        theory:[
+          "La combinación de arrays y objetos es la estructura de datos más usada en automation testing. Un array de objetos es exactamente lo que obtienes cuando consultas una API, lees un archivo CSV de datos de test, o procesas los resultados de una suite.",
+          "Puedes combinar <code>filter</code>, <code>map</code> y <code>find</code> sobre arrays de objetos para procesar datos de test de forma muy expresiva.",
+          "Esta estructura es también la base de los test data files en Playwright: un array de objetos donde cada objeto es un escenario de prueba con sus inputs y expected outputs."
+        ],
+        code:`const inventario = [
+  { id: 1, nombre: "Backpack",      precio: 29.99, categoria: "bags"    },
+  { id: 2, nombre: "Bike Light",    precio: 9.99,  categoria: "gadgets" },
+  { id: 3, nombre: "T-Shirt",       precio: 15.99, categoria: "clothes" },
+  { id: 4, nombre: "Fleece Jacket", precio: 49.99, categoria: "clothes" },
+  { id: 5, nombre: "Onesie",        precio: 7.99,  categoria: "clothes" }
+];
+
+// Filtrar ropa
+const ropa = inventario.filter(p => p.categoria === "clothes");
+console.log(ropa.length); // 3
+
+// Obtener solo nombres y precios
+const resumen = inventario.map(p => \`\${p.nombre}: $\${p.precio}\`);
+resumen.forEach(r => console.log(r));
+
+// Buscar por ID
+const producto = inventario.find(p => p.id === 3);
+console.log(producto.nombre); // "T-Shirt"
+
+// Precio promedio
+const total = inventario.reduce((acc, p) => acc + p.precio, 0);
+console.log(\`Promedio: $\${(total / inventario.length).toFixed(2)}\`);`,
+        practice:"Agrega al array un campo <code>enStock: true/false</code> con valores mixtos. Crea una función <code>obtenerDisponibles(inventario)</code> que retorne solo los productos en stock, ordenados de menor a mayor precio usando <code>.sort()</code>."
+      },
+      {
+        day:15, title:"Práctica: procesar el inventario de SauceDemo",
+        theory:[
+          "Hoy combinas todo lo de la semana para resolver un problema completo de procesamiento de datos — el tipo de tarea que harás cuando escribas tests data-driven en Playwright.",
+          "Data-driven testing significa que el mismo test se ejecuta con diferentes datos. Para eso necesitas manejar arrays de objetos con fluidez: filtrar, transformar, buscar.",
+          "Al completar este ejercicio tendrás las bases para escribir scripts que lean datos de prueba y los procesen antes de pasarlos a tus tests."
+        ],
+        code:`// Dataset completo de SauceDemo
+const productos = [
+  { id:"sauce-labs-backpack",      nombre:"Sauce Labs Backpack",      precio:29.99, rating:4 },
+  { id:"sauce-labs-bike-light",    nombre:"Sauce Labs Bike Light",    precio:9.99,  rating:3 },
+  { id:"sauce-labs-bolt-t-shirt",  nombre:"Sauce Labs Bolt T-Shirt",  precio:15.99, rating:4 },
+  { id:"sauce-labs-fleece-jacket", nombre:"Sauce Labs Fleece Jacket", precio:49.99, rating:3 },
+  { id:"sauce-labs-onesie",        nombre:"Sauce Labs Onesie",        precio:7.99,  rating:5 },
+  { id:"test.allthethings()-t-shirt", nombre:"Test.allTheThings() T-Shirt", precio:15.99, rating:5 }
+];
+
+// 1. Productos bajo $20
+const economicos = productos.filter(p => p.precio < 20);
+console.log("Económicos:", economicos.map(p => p.nombre));
+
+// 2. Ordenados por precio (menor a mayor)
+const porPrecio = [...productos].sort((a, b) => a.precio - b.precio);
+console.log("Más barato:", porPrecio[0].nombre);
+
+// 3. Rating 5 estrellas
+const topRated = productos.filter(p => p.rating === 5);
+console.log("Top rated:", topRated.map(p => p.nombre));
+
+// 4. Reporte
+const reporte = productos.map(p => ({
+  nombre: p.nombre,
+  precio: \`$\${p.precio}\`,
+  estrellas: "★".repeat(p.rating)
+}));
+console.table(reporte);`,
+        practice:"Agrega una función <code>buscarProducto(catalogo, termino)</code> que busque por nombre (case-insensitive) y retorne el objeto completo o <code>null</code> si no existe. Pruébala con 'backpack', 'JACKET' y 'inexistente'."
+      }
+    ]
+  },
+
+  // ── Semana 4 ──
+  {
+    week:4, title:"Async / Await",
+    phase:1, phaseName:"JS Esencial",
+    badge:{icon:"⚡",name:"JS Ready"},
+    days:[
+      {
+        day:16, title:"¿Qué es código asíncrono? La analogía del restaurante",
+        theory:[
+          "Código síncrono es como una fila de un banco: una persona a la vez, todos esperan. Código asíncrono es como un restaurante: el mesero toma tu orden, la lleva a cocina, y mientras espera que esté lista atiende a otras mesas. No bloquea.",
+          "En un browser o en Node.js (donde corre Playwright), muchas operaciones son asíncronas por naturaleza: abrir una página web, esperar que un elemento aparezca, hacer una llamada a una API. Si fueran síncronas, la aplicación se 'congelaría' esperando.",
+          "Playwright es 100% asíncrono. Cada acción que hace espera a que algo suceda en el browser. Por eso <strong>todo el código de Playwright usa async/await</strong>."
+        ],
+        code:`// Código SÍNCRONO — bloquea hasta terminar
+console.log("1. Preparando test");
+console.log("2. Abriendo browser");
+console.log("3. Navegando a SauceDemo");
+console.log("4. Test completado");
+// Salida: 1, 2, 3, 4 — en orden
+
+// Código ASÍNCRONO — no bloquea
+console.log("1. Enviando orden a cocina");
+
+setTimeout(() => {
+  console.log("3. ¡Plato listo!"); // llega después
+}, 1000);
+
+console.log("2. Atendiendo otra mesa"); // no espera
+// Salida: 1, 2, 3 — el 3 llega después de 1 segundo`,
+        practice:"En playcode.io, copia el ejemplo del código asíncrono con <code>setTimeout</code>. Cambia el tiempo a 2000ms. Agrega más mensajes antes y después del setTimeout. Observa el orden de ejecución. ¿Puedes predecirlo antes de ejecutar?"
+      },
+      {
+        day:17, title:"Promises — el sistema de promesas de JavaScript",
+        theory:[
+          "Una Promise (promesa) es un objeto que representa el resultado eventual de una operación asíncrona. Puede estar en 3 estados: <strong>pending</strong> (esperando), <strong>fulfilled</strong> (completada con éxito) o <strong>rejected</strong> (falló).",
+          "Con <code>.then()</code> defines qué hacer cuando la promesa se cumple. Con <code>.catch()</code> defines qué hacer cuando falla. Es como decir: 'cuando termine de cargar la página, ENTONCES haz click. Si falla, ENTONCES muestra el error'.",
+          "Las Promises reemplazaron al callback hell (funciones anidadas interminables). Luego async/await reemplazó a las Promises con una sintaxis aún más limpia. Pero entender Promises te ayuda a entender los mensajes de error de Playwright."
+        ],
+        code:`// Función que retorna una Promise
+function cargarPagina(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url.startsWith("https")) {
+        resolve(\`Página cargada: \${url}\`);
+      } else {
+        reject(new Error("URL inválida — usa HTTPS"));
+      }
+    }, 500);
+  });
+}
+
+// Usar la Promise con .then() y .catch()
+cargarPagina("https://www.saucedemo.com")
+  .then(mensaje => console.log("✓", mensaje))
+  .catch(error => console.log("✗", error.message));
+
+cargarPagina("http://inseguro.com")
+  .then(mensaje => console.log("✓", mensaje))
+  .catch(error => console.log("✗", error.message));`,
+        practice:"Copia el código y ejecútalo. Luego modifica <code>cargarPagina</code> para que también rechace si la URL contiene 'localhost'. Prueba con 3 URLs diferentes y verifica que el mensaje correcto aparezca para cada caso."
+      },
+      {
+        day:18, title:"async/await — la forma moderna (la que usa Playwright)",
+        theory:[
+          "<code>async/await</code> es azúcar sintáctico sobre Promises — hace que el código asíncrono se lea como si fuera síncrono, sin perder sus ventajas. Una función marcada con <code>async</code> siempre devuelve una Promise. Dentro de ella, <code>await</code> pausa la ejecución hasta que la Promise se resuelve.",
+          "Importante: solo puedes usar <code>await</code> dentro de una función <code>async</code>. Si intentas usarlo fuera, obtienes un error de sintaxis.",
+          "En Playwright, <strong>cada test es una función async</strong> y cada acción lleva <code>await</code>: <code>await page.goto(url)</code>, <code>await page.click(selector)</code>. Sin el await, la acción no esperaría a completarse."
+        ],
+        code:`// La misma función del día anterior, con async/await
+function cargarPagina(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url.startsWith("https")) resolve(\`Cargada: \${url}\`);
+      else reject(new Error("URL inválida"));
+    }, 300);
+  });
+}
+
+// async/await — se lee de arriba a abajo
+async function ejecutarTest() {
+  console.log("Iniciando test...");
+
+  const resultado = await cargarPagina("https://www.saucedemo.com");
+  console.log(resultado);
+
+  console.log("Haciendo login...");
+  // En Playwright real sería:
+  // await page.fill('#user-name', 'standard_user');
+  // await page.click('#login-button');
+
+  console.log("Test completado.");
+}
+
+ejecutarTest(); // llamar sin await (es async, retorna Promise)`,
+        practice:"Escribe una función <code>async function simularNavegacion()</code> que use <code>await</code> para 'esperar' 3 acciones simuladas con setTimeout: navegar (500ms), llenar formulario (300ms), hacer click (200ms). Imprime un mensaje antes y después de cada await."
+      },
+      {
+        day:19, title:"try/catch — manejar errores en código async",
+        theory:[
+          "<code>try/catch</code> es como un arnés de seguridad: el código que podría fallar va en el bloque <code>try</code>, y si algo sale mal el control pasa al bloque <code>catch</code> con el error. Así el programa no se cae.",
+          "Con async/await, usas <code>try/catch</code> en lugar de <code>.catch()</code>. Es más legible porque el manejo de errores queda justo al lado del código que lo genera.",
+          "En Playwright, el <code>try/catch</code> se usa para manejar casos esperados como elementos que pueden o no existir, timeouts, o assertions que fallan de forma controlada."
+        ],
+        code:`async function loginConManejo(usuario, password) {
+  console.log(\`Intentando login: \${usuario}\`);
+
+  try {
+    // Simular llamada que puede fallar
+    const resultado = await intentarLogin(usuario, password);
+    console.log("✓ Login exitoso:", resultado);
+    return { ok: true, data: resultado };
+
+  } catch (error) {
+    console.log("✗ Login falló:", error.message);
+    return { ok: false, error: error.message };
+  } finally {
+    // Esto se ejecuta SIEMPRE (éxito o error)
+    console.log("--- Fin del intento de login ---");
+  }
+}
+
+function intentarLogin(user, pass) {
+  return new Promise((resolve, reject) => {
+    if (user === "locked_out_user") {
+      reject(new Error("Usuario bloqueado por el sistema"));
+    } else if (pass !== "secret_sauce") {
+      reject(new Error("Credenciales incorrectas"));
+    } else {
+      resolve("Bienvenido al inventario");
+    }
+  });
+}
+
+loginConManejo("standard_user", "secret_sauce");
+loginConManejo("locked_out_user", "secret_sauce");`,
+        practice:"Ejecuta el código. Luego agrega un cuarto caso: <code>loginConManejo('standard_user', 'wrong')</code>. Observa el mensaje del catch. Después agrega una validación en <code>loginConManejo</code>: si usuario o password están vacíos, lanza un error <em>antes</em> del try: <code>throw new Error('...')</code>"
+      },
+      {
+        day:20, title:"Práctica: función async que simula el flujo completo de login",
+        theory:[
+          "Llegó el momento de unir todo lo de la semana: async, await, try/catch y el manejo de errores. Este ejercicio es el más cercano al código real de Playwright que habrás escrito hasta ahora.",
+          "La estructura que escribirás hoy — una función async con try/catch que ejecuta pasos secuenciales — es exactamente la que usarás en cada test de Playwright. La única diferencia es que las funciones simuladas serán acciones reales del browser.",
+          "Cuando llegues a la Semana 5 y escribas tu primer test real, este patrón ya te va a sonar familiar."
+        ],
+        code:`// Simulación del flujo completo de SauceDemo
+function esperar(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+async function abrirBrowser() {
+  await esperar(200);
+  return "Browser Chromium abierto";
+}
+
+async function navegarA(url) {
+  await esperar(300);
+  if (!url.includes("saucedemo")) throw new Error(\`URL no reconocida: \${url}\`);
+  return \`Navegando a \${url}\`;
+}
+
+async function hacerLogin(user, pass) {
+  await esperar(400);
+  if (user !== "standard_user" || pass !== "secret_sauce") {
+    throw new Error("Epic sadface o not such user");
+  }
+  return "Login exitoso — en inventario";
+}
+
+// Test completo
+async function testLoginCompleto() {
+  console.log("▶ Iniciando test: Login en SauceDemo");
+
+  try {
+    const browser = await abrirBrowser();
+    console.log("  ✓", browser);
+
+    const nav = await navegarA("https://www.saucedemo.com");
+    console.log("  ✓", nav);
+
+    const login = await hacerLogin("standard_user", "secret_sauce");
+    console.log("  ✓", login);
+
+    console.log("✅ Test PASADO");
+  } catch (error) {
+    console.log("❌ Test FALLIDO:", error.message);
+  }
+}
+
+testLoginCompleto();`,
+        practice:"Ejecuta el test con credenciales correctas. Luego provoca 2 fallos distintos: cambia la URL para que falle <code>navegarA</code>, y luego cambia las credenciales para que falle <code>hacerLogin</code>. Observa en qué paso exacto falla cada vez."
+      }
+    ]
+  }
+  // Semanas 5-16 se agregan aquí
 ];
 
 // ════════════════════════════════════════
