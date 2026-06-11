@@ -43,7 +43,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .progress-fill{height:100%;background:var(--gold);border-radius:2px;width:0%;transition:width 500ms ease;}
 .progress-label{font-family:var(--font-mono);font-size:11px;color:var(--text-dim);min-width:36px;text-align:right;}
 .heatmap-wrap{display:flex;align-items:flex-start;gap:6px;}
-.heatmap-day-labels{display:flex;flex-direction:column;gap:3px;}
+.heatmap-day-labels{display:flex;flex-direction:column;gap:3px;padding-top:18px;}
 .heatmap-day-labels span{font-family:var(--font-mono);font-size:9px;color:var(--text-muted);height:14px;display:flex;align-items:center;}
 .heatmap-week-labels{display:grid;grid-template-columns:repeat(16,14px);gap:3px;margin-bottom:2px;}
 .heatmap-week-labels span{font-family:var(--font-mono);font-size:8px;color:var(--text-muted);text-align:center;}
@@ -56,8 +56,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .hm-cell.pop{animation:pop 300ms ease forwards;}
 
 /* ── Layout ── */
-.layout{display:grid;grid-template-columns:200px 1fr 180px;gap:0;max-width:1400px;margin:0 auto;min-height:calc(100vh - 150px);}
-.sidebar-left{position:sticky;top:148px;height:calc(100vh - 148px);overflow-y:auto;border-right:1px solid var(--border);padding:16px 0;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.layout{display:grid;grid-template-columns:200px 1fr 180px;gap:0;max-width:1400px;margin:0 auto;min-height:calc(100vh - var(--hdr-h, 160px));}
+.sidebar-left{position:sticky;top:var(--hdr-h, 160px);height:calc(100vh - var(--hdr-h, 160px));overflow-y:auto;border-right:1px solid var(--border);padding:16px 0;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
 .sidebar-left h3{font-family:var(--font-display);font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:0 16px 8px;}
 .week-nav-item{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;cursor:pointer;border-left:2px solid transparent;transition:all 150ms ease;gap:8px;}
 .week-nav-item:hover{background:var(--bg2);color:#fff;}
@@ -73,7 +73,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .nav-playground-item .wni-title{color:var(--teal);}
 
 /* ── Content ── */
-.content{padding:24px 32px;max-width:860px;}
+.content{padding:24px 32px;max-width:860px;width:100%;}
 .week-section{margin-bottom:48px;}
 .week-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);}
 .week-number{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);min-width:60px;}
@@ -121,7 +121,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .day-card.completed .complete-btn{border-color:var(--teal);color:var(--teal);background:rgba(0,196,154,.08);cursor:default;}
 
 /* ── Sidebar derecho ── */
-.sidebar-right{position:sticky;top:148px;height:calc(100vh - 148px);overflow-y:auto;border-left:1px solid var(--border);padding:16px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.sidebar-right{position:sticky;top:var(--hdr-h, 160px);height:calc(100vh - var(--hdr-h, 160px));overflow-y:auto;border-left:1px solid var(--border);padding:16px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
 .sidebar-right h3{font-family:var(--font-display);font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
 .badge-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:4px;border:1px solid var(--border);margin-bottom:8px;text-align:center;transition:all 200ms ease;}
 .badge-item.unlocked{border-color:var(--gold-dim);background:rgba(240,165,0,.06);}
@@ -946,7 +946,7 @@ function renderChallenge(id){
   left.innerHTML=`
     <div class="pg-left-label">Preview HTML</div>
     <div class="pg-iframe-wrap">
-      <iframe class="pg-iframe" id="pg-iframe-${id}" sandbox="allow-same-origin"></iframe>
+      <iframe class="pg-iframe" id="pg-iframe-${id}"></iframe>
       <span class="pg-match-badge" id="pg-match-badge" style="display:none"></span>
     </div>`;
 
@@ -1301,6 +1301,11 @@ function initScrollSpy(){
 // ════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════
+function setHeaderVar(){
+  const h = document.getElementById('header').getBoundingClientRect().height;
+  document.documentElement.style.setProperty('--hdr-h', Math.ceil(h) + 'px');
+}
+
 function init(){
   renderHeatmap();
   renderWeekNav();
@@ -1308,10 +1313,10 @@ function init(){
   renderBadgesSidebar();
   updateStats();
   initScrollSpy();
-  // Restore week progress bars
   [...new Set(state.completedDays.map(d=>Math.ceil(d/5)))].forEach(w=>updateWeekProgress(w));
-  // Init playground after DOM is ready
-  setTimeout(initPlayground, 100);
+  // Medir header DESPUÉS de que las fuentes y el DOM estén listos
+  setTimeout(()=>{ setHeaderVar(); initPlayground(); }, 150);
+  window.addEventListener('resize', setHeaderVar);
 }
 
 init();
